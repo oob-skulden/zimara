@@ -1,0 +1,113 @@
+# ============================================
+# Hugo Build Artifacts
+# ============================================
+# NOTE: /public/ is intentionally ignored because Netlify builds from source
+/public/
+/resources/
+/resources/_gen/
+/.hugo_build.lock
+
+# ============================================
+# Local Operational / Server Scripts
+# ============================================
+# Host-specific startup or service scripts (DO NOT COMMIT)
+start-server.sh
+*-server.sh
+local-*.sh
+
+# ============================================
+# Backup Files
+# ============================================
+*.backup
+*.backup-*
+*.bak
+*.old
+*.tmp
+*~
+*.orig
+
+# ============================================
+# Archives
+# ============================================
+*.tar.gz
+*.zip
+*.rar
+*.7z
+
+# ============================================
+# Editor / IDE Files
+# ============================================
+# VSCode
+.vscode/
+*.code-workspace
+
+# JetBrains
+.idea/
+*.iml
+*.iws
+
+# Vim
+*.swp
+*.swo
+
+# Emacs
+\#*\#
+.\#*
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ============================================
+# OS Files
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.directory
+.Trash-*
+
+# ============================================
+# Environment & Secrets
+# ============================================
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+secrets/
+credentials/
+
+# ============================================
+# Logs
+# ============================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ============================================
+# Dependencies
+# ============================================
+node_modules/
+
+# ============================================
+# Temporary Hugo / Netlify Files
+# ============================================
+hugo_stats.json
+hugo.development.toml
+
+# Hugo cache (newer Hugo versions / pipes)
+.hugo_cache/
+
+# Netlify local dev artifacts (only if using `netlify dev`)
+.netlify/
