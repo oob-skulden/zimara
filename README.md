@@ -1365,7 +1365,7 @@ on: [push, pull_request]
 
 jobs:
   rivus-audit:
-    runs-on: ubuntu-latest
+    runs-on: debian-latest
     
     steps:
       - name: Checkout code
