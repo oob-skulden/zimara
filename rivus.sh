@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 # ============================================================
-# Rivus Script (v0.43.0 - Interactive Prompts)
+# Rivus Script (v0.43.1 - BUGFIX)
 # Pre-push security sweep for static sites & web projects
 #
 # Supports: Hugo, Jekyll, Astro, Next export, Eleventy, generic
 #
 # Published by Oob Skulden™
 # "The threats you don't see coming"
+# 
+# BUGFIX in v0.43.1:
+# - Fixed line 950 git history syntax error
+# - Improved error handling in git log parsing
 # ============================================================
 
 set -euo pipefail
@@ -39,7 +43,7 @@ LOW_ISSUES=0
 ONLY_OUTPUT=0
 SKIP_OUTPUT=0
 INCLUDE_OUTPUT_IN_SOURCE=0
-NON_INTERACTIVE=0  # NEW: for CI/CD environments
+NON_INTERACTIVE=0
 
 # ============================================================
 # CLI / USAGE
@@ -73,7 +77,7 @@ Exit Codes:
 EOF
 }
 
-VERSION="0.43.0"
+VERSION="0.43.1"
 
 if [[ "${1:-}" == "--version" ]]; then
   echo "$VERSION"
@@ -299,7 +303,7 @@ fi
 say ""
 
 # ============================================================
-# DROP-IN: Optional best-in-class secret scanning (gitleaks/detect-secrets/git-secrets)
+# DROP-IN: Optional best-in-class secret scanning
 # ============================================================
 
 SECRET_TOOL="${SECRET_TOOL:-auto}"
@@ -928,7 +932,7 @@ else
 fi
 
 # ============================================================
-# CHECK 17: Git History Analysis (sensitive file extensions)
+# CHECK 17: Git History Analysis (FIXED)
 # ============================================================
 
 hr
@@ -940,14 +944,16 @@ if [[ "$ONLY_OUTPUT" -eq 1 ]]; then
   say ""
 else
   if [[ -d ".git" ]] && _has_cmd git; then
-    SENSITIVE_HISTORY=$(
-      git log --all --oneline --name-only 2>/dev/null \
+    # FIX: Properly capture and count sensitive files in history
+    SENSITIVE_HISTORY=0
+    if git log --all --oneline --name-only 2>/dev/null | grep -qE '\.(env|key|pem|p12|pfx|backup|bak)$'; then
+      SENSITIVE_HISTORY=$(git log --all --oneline --name-only 2>/dev/null \
         | grep -E '\.(env|key|pem|p12|pfx|backup|bak)$' \
-        | wc -l | tr -d ' ' \
-        || echo 0
-    )
+        | sort -u \
+        | wc -l | tr -d ' ')
+    fi
 
-    if [[ "${SENSITIVE_HISTORY:-0}" -gt 0 ]]; then
+    if [[ ${SENSITIVE_HISTORY:-0} -gt 0 ]]; then
       sayc "${YELLOW}⚠️  Found $SENSITIVE_HISTORY sensitive-file reference(s) in git history [MEDIUM]${NC}"
       say "Actions:"
       say "  • Secrets may remain in history even if deleted"
@@ -1000,7 +1006,7 @@ else
   fi
 
   if [[ -d "themes" ]]; then
-    if ! compgen -G "themes/*" >/dev/null; then
+    if ! compgen -G "themes/*" >/dev/null 2>&1; then
       sayc "${GREEN}✓ No themes detected${NC}"
       say ""
     else
