@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-# Rivus Script (v0.42.1 - cleaned)
+# Rivus Script (v0.43.0 - Interactive Prompts)
 # Pre-push security sweep for static sites & web projects
 #
 # Supports: Hugo, Jekyll, Astro, Next export, Eleventy, generic
@@ -39,6 +39,7 @@ LOW_ISSUES=0
 ONLY_OUTPUT=0
 SKIP_OUTPUT=0
 INCLUDE_OUTPUT_IN_SOURCE=0
+NON_INTERACTIVE=0  # NEW: for CI/CD environments
 
 # ============================================================
 # CLI / USAGE
@@ -55,16 +56,24 @@ Options:
   --only-output                 Scan only the output dir (public/dist/out/_site)
   --skip-output                 Skip scanning output dir
   --include-output-in-source     Allow output dir to be git-tracked without warning
+  --non-interactive              Skip prompts, fail on CRITICAL/HIGH (for CI/CD)
   --version                      Print version
 
 Env:
   SHOW_MATCHES=5                How many matching lines to show (default 5)
   OUTPUT_DIR=public             Override detected output directory
   SECRET_TOOL=auto|gitleaks|detect-secrets|git-secrets|none
+
+Exit Codes:
+  0  - Success (no issues or user accepted risks)
+  1  - MEDIUM issues found (user declined to proceed)
+  2  - HIGH issues found (blocked or user declined)
+  3  - CRITICAL issues found (always blocked)
+  99 - Invalid usage/directory not found
 EOF
 }
 
-VERSION="0.42.1"
+VERSION="0.43.0"
 
 if [[ "${1:-}" == "--version" ]]; then
   echo "$VERSION"
@@ -83,6 +92,7 @@ for arg in "${ARGS[@]}"; do
     --only-output) ONLY_OUTPUT=1 ;;
     --skip-output) SKIP_OUTPUT=1 ;;
     --include-output-in-source) INCLUDE_OUTPUT_IN_SOURCE=1 ;;
+    --non-interactive) NON_INTERACTIVE=1 ;;
     --help|-h) usage; exit 0 ;;
     --version) echo "$VERSION"; exit 0 ;;
   esac
@@ -126,6 +136,57 @@ find_prune_args() {
 _has_cmd() { command -v "$1" >/dev/null 2>&1; }
 
 # ============================================================
+# INTERACTIVE PROMPT HELPER
+# ============================================================
+
+prompt_user() {
+  local severity="$1"
+  local count="$2"
+  
+  if [[ "$NON_INTERACTIVE" -eq 1 ]]; then
+    return 1  # Always fail in non-interactive mode
+  fi
+  
+  say ""
+  hr
+  sayc "${YELLOW}⚠️  SECURITY DECISION REQUIRED ⚠️${NC}"
+  hr
+  say ""
+  sayc "${YELLOW}Found ${count} ${severity} severity issue(s).${NC}"
+  say ""
+  
+  case "$severity" in
+    MEDIUM)
+      say "These issues should be addressed but are not immediately critical."
+      say "They represent potential vulnerabilities or security weaknesses."
+      ;;
+    LOW)
+      say "These are minor security improvements or best practice recommendations."
+      say "They represent good security hygiene but low immediate risk."
+      ;;
+  esac
+  
+  say ""
+  sayc "${YELLOW}Do you want to proceed anyway? [y/N]${NC}"
+  read -r -p "> " response
+  
+  case "$response" in
+    [yY]|[yY][eE][sS])
+      say ""
+      sayc "${YELLOW}⚠️  Proceeding with ${severity} issues acknowledged${NC}"
+      say ""
+      return 0
+      ;;
+    *)
+      say ""
+      sayc "${RED}❌ Deployment blocked by user${NC}"
+      say ""
+      return 1
+      ;;
+  esac
+}
+
+# ============================================================
 # GENERATOR + OUTPUT DETECTION
 # ============================================================
 
@@ -149,7 +210,6 @@ elif [[ -f ".eleventy.js" || -f "eleventy.config.js" || -f ".eleventy.cjs" ]]; t
   OUTPUT_DIR_DETECTED="_site"
 fi
 
-# ✅ 2-line OUTPUT_DIR override (env wins, otherwise detected)
 OUTPUT_DIR="${OUTPUT_DIR:-$OUTPUT_DIR_DETECTED}"
 OUTPUT_BASENAME="$(basename "${OUTPUT_DIR:-}" 2>/dev/null || true)"
 
@@ -165,6 +225,7 @@ say ""
 say "Directory scanned: $(pwd)"
 say "Generator detected: $GENERATOR"
 [[ -n "${OUTPUT_DIR:-}" ]] && say "Output dir detected: $OUTPUT_DIR"
+[[ "$NON_INTERACTIVE" -eq 1 ]] && say "Mode: Non-interactive (CI/CD)"
 say ""
 
 # ============================================================
@@ -812,7 +873,7 @@ else
     if [[ ${DRAFT_MARKERS:-0} -gt 0 ]]; then
       sayc "${YELLOW}⚠️  Found $DRAFT_MARKERS draft marker(s) in content [LOW]${NC}"
       say "Actions:"
-      say "  • Ensure drafts/placeholders aren’t published"
+      say "  • Ensure drafts/placeholders aren't published"
       LOW_ISSUES=$((LOW_ISSUES + 1))
       IDENTITY_REFS=$((IDENTITY_REFS + 1))
     fi
@@ -873,7 +934,6 @@ fi
 hr
 sayc "${PURPLE}CHECK 17: Git History Analysis${NC}"
 hr
-say ""
 
 if [[ "$ONLY_OUTPUT" -eq 1 ]]; then
   sayc "${BLUE}ℹ️  Source scanning disabled (--only-output)${NC}"
@@ -903,7 +963,6 @@ else
   say ""
 fi
 
-
 # ============================================================
 # CHECK 18: Module/Theme Supply Chain
 # ============================================================
@@ -911,7 +970,6 @@ fi
 hr
 sayc "${PURPLE}CHECK 18: Module/Theme Supply Chain${NC}"
 hr
-say ""
 
 if [[ "$ONLY_OUTPUT" -eq 1 ]]; then
   sayc "${BLUE}ℹ️  Source scanning disabled (--only-output)${NC}"
@@ -942,7 +1000,6 @@ else
   fi
 
   if [[ -d "themes" ]]; then
-    # Avoid iterating literal "themes/*" when empty
     if ! compgen -G "themes/*" >/dev/null; then
       sayc "${GREEN}✓ No themes detected${NC}"
       say ""
@@ -954,7 +1011,6 @@ else
         [[ -d "$theme_dir" ]] || continue
         theme_name=$(basename "$theme_dir")
 
-        # ✅ FIX: run _has_cmd outside [[ ]]
         if [[ -d "$theme_dir/.git" ]] && _has_cmd git; then
           REMOTE=$(cd "$theme_dir" && git remote get-url origin 2>/dev/null || echo "unknown")
           sayc "  ${GREEN}✓${NC} $theme_name: git-tracked ($REMOTE)"
@@ -1216,7 +1272,7 @@ fi
 say ""
 
 # ============================================================
-# FINAL SUMMARY
+# FINAL SUMMARY + INTERACTIVE DECISION LOGIC
 # ============================================================
 
 say "=============================================="
@@ -1229,32 +1285,89 @@ say ""
 
 TOTAL_ISSUES=$((CRITICAL_ISSUES + HIGH_ISSUES + MEDIUM_ISSUES + LOW_ISSUES))
 
+# Display issue summary
 if [[ $CRITICAL_ISSUES -gt 0 ]]; then
-  sayc "${RED}🚨 CRITICAL: $CRITICAL_ISSUES issue(s) - FIX IMMEDIATELY${NC}"
+  sayc "${RED}🚨 CRITICAL: $CRITICAL_ISSUES issue(s) - DEPLOYMENT BLOCKED${NC}"
 fi
 if [[ $HIGH_ISSUES -gt 0 ]]; then
-  sayc "${RED}⚠️  HIGH:     $HIGH_ISSUES issue(s) - Fix soon${NC}"
+  sayc "${RED}⚠️  HIGH:     $HIGH_ISSUES issue(s) - DEPLOYMENT BLOCKED${NC}"
 fi
 if [[ $MEDIUM_ISSUES -gt 0 ]]; then
-  sayc "${YELLOW}⚠️  MEDIUM:   $MEDIUM_ISSUES issue(s) - Address when possible${NC}"
+  sayc "${YELLOW}⚠️  MEDIUM:   $MEDIUM_ISSUES issue(s) - Review required${NC}"
 fi
 if [[ $LOW_ISSUES -gt 0 ]]; then
   sayc "${BLUE}ℹ️  LOW:      $LOW_ISSUES issue(s) - Nice to fix${NC}"
 fi
 
 say ""
+
+# ============================================================
+# EXIT DECISION LOGIC
+# ============================================================
+
+# CRITICAL or HIGH: ALWAYS BLOCK
+if [[ $CRITICAL_ISSUES -gt 0 || $HIGH_ISSUES -gt 0 ]]; then
+  hr
+  sayc "${RED}❌ DEPLOYMENT BLOCKED ❌${NC}"
+  hr
+  say ""
+  say "CRITICAL and HIGH severity issues must be fixed before deployment."
+  say ""
+  say "Priority actions:"
+  [[ $CRITICAL_ISSUES -gt 0 ]] && say "  1. 🚨 Fix $CRITICAL_ISSUES CRITICAL issue(s) immediately"
+  [[ $HIGH_ISSUES -gt 0 ]] && say "  2. ⚠️  Fix $HIGH_ISSUES HIGH issue(s) before deploying"
+  say ""
+  say "Re-run this script after fixing issues."
+  say ""
+  say "=============================================="
+  sayc "${PURPLE}Generated by: 🦛 Published by Oob Skulden™ 🦛${NC}"
+  sayc "${PURPLE}\"The threats you don't see coming\"${NC}"
+  say "=============================================="
+  say ""
+  
+  if [[ $CRITICAL_ISSUES -gt 0 ]]; then
+    exit 3
+  else
+    exit 2
+  fi
+fi
+
+# MEDIUM: PROMPT USER (unless non-interactive)
+if [[ $MEDIUM_ISSUES -gt 0 ]]; then
+  if ! prompt_user "MEDIUM" "$MEDIUM_ISSUES"; then
+    say ""
+    say "=============================================="
+    sayc "${PURPLE}Generated by: 🦛 Published by Oob Skulden™ 🦛${NC}"
+    sayc "${PURPLE}\"The threats you don't see coming\"${NC}"
+    say "=============================================="
+    say ""
+    exit 1
+  fi
+fi
+
+# LOW: PROMPT USER (unless non-interactive)
+if [[ $LOW_ISSUES -gt 0 ]]; then
+  if ! prompt_user "LOW" "$LOW_ISSUES"; then
+    say ""
+    say "=============================================="
+    sayc "${PURPLE}Generated by: 🦛 Published by Oob Skulden™ 🦛${NC}"
+    sayc "${PURPLE}\"The threats you don't see coming\"${NC}"
+    say "=============================================="
+    say ""
+    exit 1
+  fi
+fi
+
+# NO ISSUES or USER ACCEPTED RISKS
 if [[ $TOTAL_ISSUES -eq 0 ]]; then
   sayc "${GREEN}✅ EXCELLENT! No security issues found!${NC}"
-  say ""
-  sayc "${PURPLE}🦛 Published by Oob Skulden™ — stay vigilant, stay submerged.${NC}"
+  sayc "${GREEN}✅ Safe to deploy${NC}"
 else
-  sayc "${YELLOW}⚠️  Found $TOTAL_ISSUES total security issue(s)${NC}"
+  sayc "${YELLOW}⚠️  Proceeding with acknowledged risks${NC}"
   say ""
-  say "Priority actions (in order):"
-  [[ $CRITICAL_ISSUES -gt 0 ]] && say "  1. 🚨 Fix CRITICAL issues immediately"
-  [[ $HIGH_ISSUES -gt 0 ]] && say "  2. ⚠️  Address HIGH priority issues"
-  [[ $MEDIUM_ISSUES -gt 0 ]] && say "  3. ⚠️  Review MEDIUM priority issues"
-  [[ $LOW_ISSUES -gt 0 ]] && say "  4. ℹ️  Consider LOW priority improvements"
+  say "Issues accepted:"
+  [[ $MEDIUM_ISSUES -gt 0 ]] && say "  • $MEDIUM_ISSUES MEDIUM issue(s)"
+  [[ $LOW_ISSUES -gt 0 ]] && say "  • $LOW_ISSUES LOW issue(s)"
 fi
 
 say ""
@@ -1264,12 +1377,4 @@ sayc "${PURPLE}\"The threats you don't see coming\"${NC}"
 say "=============================================="
 say ""
 
-if [[ $CRITICAL_ISSUES -gt 0 ]]; then
-  exit 3
-elif [[ $HIGH_ISSUES -gt 0 ]]; then
-  exit 2
-elif [[ $MEDIUM_ISSUES -gt 0 ]]; then
-  exit 1
-else
-  exit 0
-fi
+exit 0
