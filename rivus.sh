@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-# Ultimate Security Audit Script (v0.42.1 - cleaned)
+# Rivus Script (v0.42.1 - cleaned)
 # Pre-push security sweep for static sites & web projects
 #
 # Supports: Hugo, Jekyll, Astro, Next export, Eleventy, generic
@@ -46,10 +46,10 @@ INCLUDE_OUTPUT_IN_SOURCE=0
 
 usage() {
   cat <<'EOF'
-ultimate-security-audit.sh
+rivus.sh
 
 Usage:
-  ./ultimate-security-audit.sh [path] [options]
+  ./rivus.sh [path] [options]
 
 Options:
   --only-output                 Scan only the output dir (public/dist/out/_site)
@@ -159,7 +159,7 @@ OUTPUT_BASENAME="$(basename "${OUTPUT_DIR:-}" 2>/dev/null || true)"
 
 say ""
 sayc "${PURPLE}==============================================${NC}"
-sayc "${PURPLE}🔒 ULTIMATE SECURITY AUDIT 🔒  (v${VERSION})${NC}"
+sayc "${PURPLE}🔒 Rivus 🔒  (v${VERSION})${NC}"
 sayc "${PURPLE}==============================================${NC}"
 say ""
 say "Directory scanned: $(pwd)"
