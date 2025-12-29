@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-# Rivus Script (v0.43.1 - BUGFIX)
+# Zimara Script (v0.44.0)
 # Pre-push security sweep for static sites & web projects
 #
 # Supports: Hugo, Jekyll, Astro, Next export, Eleventy, generic
@@ -51,10 +51,10 @@ NON_INTERACTIVE=0
 
 usage() {
   cat <<'EOF'
-rivus.sh
+zimara.sh
 
 Usage:
-  ./rivus.sh [path] [options]
+  ./zimara.sh [path] [options]
 
 Options:
   --only-output                 Scan only the output dir (public/dist/out/_site)
@@ -77,7 +77,7 @@ Exit Codes:
 EOF
 }
 
-VERSION="0.43.1"
+VERSION="0.44.0"
 
 if [[ "${1:-}" == "--version" ]]; then
   echo "$VERSION"
@@ -223,7 +223,7 @@ OUTPUT_BASENAME="$(basename "${OUTPUT_DIR:-}" 2>/dev/null || true)"
 
 say ""
 sayc "${PURPLE}==============================================${NC}"
-sayc "${PURPLE}🔒 Rivus 🔒  (v${VERSION})${NC}"
+sayc "${PURPLE}🔒 Zimara 🔒  (v${VERSION})${NC}"
 sayc "${PURPLE}==============================================${NC}"
 say ""
 say "Directory scanned: $(pwd)"
@@ -1278,59 +1278,6 @@ fi
 say ""
 
 # ============================================================
-# FINAL SUMMARY + INTERACTIVE DECISION LOGIC
-# ============================================================
-
-say "=============================================="
-say "🔒 FINAL SECURITY SUMMARY 🔒"
-say "=============================================="
-say ""
-say "Generator detected: $GENERATOR"
-[[ -n "${OUTPUT_DIR:-}" ]] && say "Output dir detected: $OUTPUT_DIR"
-say ""
-
-TOTAL_ISSUES=$((CRITICAL_ISSUES + HIGH_ISSUES + MEDIUM_ISSUES + LOW_ISSUES))
-
-# Display issue summary
-if [[ $CRITICAL_ISSUES -gt 0 ]]; then
-  sayc "${RED}🚨 CRITICAL: $CRITICAL_ISSUES issue(s) - DEPLOYMENT BLOCKED${NC}"
-fi
-if [[ $HIGH_ISSUES -gt 0 ]]; then
-  sayc "${RED}⚠️  HIGH:     $HIGH_ISSUES issue(s) - DEPLOYMENT BLOCKED${NC}"
-fi
-if [[ $MEDIUM_ISSUES -gt 0 ]]; then
-  sayc "${YELLOW}⚠️  MEDIUM:   $MEDIUM_ISSUES issue(s) - Review required${NC}"
-fi
-if [[ $LOW_ISSUES -gt 0 ]]; then
-  sayc "${BLUE}ℹ️  LOW:      $LOW_ISSUES issue(s) - Nice to fix${NC}"
-fi
-
-say ""
-
-#!/usr/bin/env bash
-# ============================================================
-# Rivus Script - NEW CHECKS (v0.44.0)
-# Additional security checks for static sites & web projects
-#
-# Published by Oob Skulden™
-# "The threats you don't see coming"
-#
-# NEW CHECKS:
-# - CHECK 25: CI/CD Secret Leakage Patterns
-# - CHECK 26: Serverless Function Exposure
-# - CHECK 27: Third-Party Script Integrity (SRI)
-# - CHECK 28: Form Action Endpoints
-# - CHECK 29: Analytics & Tag Manager Data Leakage
-# - CHECK 30: DNS/Subdomain Takeover Risk
-# - CHECK 31: Stale OAuth Tokens in Static Content
-# - CHECK 32: Build-Time Data Exfiltration
-# - CHECK 33: API Key Rotation Age
-# ============================================================
-
-# NOTE: These checks should be inserted into the main rivus.sh script
-# after CHECK 24 and before FINAL SUMMARY
-
-# ============================================================
 # CHECK 25: CI/CD Secret Leakage Patterns
 # ============================================================
 
@@ -2197,13 +2144,38 @@ else
 fi
 
 # ============================================================
-# NOTE: Insert these checks into main rivus.sh before FINAL SUMMARY
-# Update version to 0.44.0
-# Adjust CRITICAL/HIGH/MEDIUM/LOW_ISSUES counters in final summary
-# ============================================================
-
 
 # ============================================================
+# FINAL SUMMARY + INTERACTIVE DECISION LOGIC
+# ============================================================
+
+say "=============================================="
+say "🔒 FINAL SECURITY SUMMARY 🔒"
+say "=============================================="
+say ""
+say "Generator detected: $GENERATOR"
+[[ -n "${OUTPUT_DIR:-}" ]] && say "Output dir detected: $OUTPUT_DIR"
+say ""
+
+TOTAL_ISSUES=$((CRITICAL_ISSUES + HIGH_ISSUES + MEDIUM_ISSUES + LOW_ISSUES))
+
+# Display issue summary
+if [[ $CRITICAL_ISSUES -gt 0 ]]; then
+  sayc "${RED}🚨 CRITICAL: $CRITICAL_ISSUES issue(s) - DEPLOYMENT BLOCKED${NC}"
+fi
+if [[ $HIGH_ISSUES -gt 0 ]]; then
+  sayc "${RED}⚠️  HIGH:     $HIGH_ISSUES issue(s) - DEPLOYMENT BLOCKED${NC}"
+fi
+if [[ $MEDIUM_ISSUES -gt 0 ]]; then
+  sayc "${YELLOW}⚠️  MEDIUM:   $MEDIUM_ISSUES issue(s) - Review required${NC}"
+fi
+if [[ $LOW_ISSUES -gt 0 ]]; then
+  sayc "${BLUE}ℹ️  LOW:      $LOW_ISSUES issue(s) - Nice to fix${NC}"
+fi
+
+say ""
+
+
 # EXIT DECISION LOGIC
 # ============================================================
 
