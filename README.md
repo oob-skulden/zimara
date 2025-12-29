@@ -1,681 +1,433 @@
-# Zimara: Pre-Push Security Sweep
+# Zimara
 
-**Published by Oob Skulden™**
+**Version:** 0.46.3  
+**Status:** Active development — stable for production use  
+**Published by:** Oob Skulden™
 
-A bash script that catches the "oh shit" moments before they hit production. Runs locally, exits fast, blocks bad commits.
+Zimara is a local security audit script you run **before** your code leaves your laptop.
 
-**Version:** 0.44.0  
-**Tagline:** "The threats you don't see coming"
+It exists to catch the stuff that *always* bites later:
+secrets that were “temporary,” files that “weren’t supposed to be committed,”
+and configs that quietly expose more than you think.
 
----
+It runs fast, stays local, and doesn’t try to be cleverer than it needs to be.
 
-## What It Does
-
-Zimara runs **33 security checks** before you push code:
-
-- Private keys (hard stop)
-- `.env` files in git
-- Hardcoded API keys and passwords
-- Secrets in build output
-- Internal IPs in production builds
-- Debug files you forgot about
-- Large accidental commits
-- CI/CD secret leakage
-- OAuth tokens in frontend code
-- Third-party scripts without integrity checks
-- Forms submitting over HTTP
-- PII in analytics
-- Serverless function vulnerabilities
-
-Plus checks for git hygiene, dependency vulns, DNS takeover risks, and more.
-
-Each check is numbered. Exit codes are predictable. No network calls required.
-
----
+-----
 
 ## Why This Exists
 
-Security incidents usually start with:
+Most security problems don’t start in CI.
+They start locally, right before a commit or push, in that moment where everything *looks fine* but absolutely isn’t.
 
-```bash
-git add .
-git commit -m "quick fix"
-git push
-```
+Zimara sits in that gap.
 
-Then you realize your API key is public.
+It’s the friend who asks “hey, are you *sure* you want to commit that?” before GitHub Actions has a chance to judge you.
 
-Zimara catches that **before it leaves your machine**. It's not enterprise SAST. It's a pre-flight checklist.
+-----
 
-**Every check in this script exists because these mistakes happen in real projects.**
+## What Zimara Does
 
----
+Zimara performs a read-only security sweep of your repository and flags the common, real-world mistakes that routinely turn into incidents nobody wants to explain.
 
-## Threat Model
+It focuses on:
 
-### In Scope
+- things developers accidentally commit (we’ve all done it)
+- things static sites accidentally expose (trust me, they do)
+- things Git history never, ever forgets (yes, even after you delete the file)
 
-- **Accidental credential exposure** - API tokens, secrets, private keys committed to Git
-- **Unsafe artifacts** - Backup files, debug output, temporary files accidentally tracked
-- **Static output leakage** - Internal IPs, localhost references, `.git/` exposure in published output
-- **Configuration drift** - Mixed HTTP/HTTPS content warnings, environment-specific values leaking
-- **Operational mistakes** - Large unintended files, dependency vulnerabilities surfaced late
-- **Supply chain risks** - Unvetted third-party themes or modules
+It does **not** modify files, install tools, or make network calls.
 
-### Explicitly Out of Scope
+### 45 security checks covering:
 
-- Advanced code exploitation or vulnerability discovery
-- Runtime vulnerabilities (XSS, CSRF, SQL injection in dynamic applications)
-- Authentication or authorization logic flaws
-- Deep dependency graph analysis or supply chain attacks
-- Adversarial code review or penetration testing
-- Network-level security or infrastructure hardening
+- **Secrets and credentials** in files and configs  
+  (API keys, tokens, passwords, bearer strings, AWS keys, you name it)
+- **Hard stop detection** of private keys and crypto material  
+  (`.pem`, `.key`, `.p12`, `.pfx`, SSH keys, certificates — the stuff that ends careers)
+- **Git history inspection** for sensitive file extensions  
+  (because deleting the file later is like closing the barn door after the horses have started a podcast)
+- **Backup, temp, and debug artifacts** accidentally tracked by Git  
+  (`.bak`, `.old`, `.backup`, `debug.log`, database dumps, the works)
+- **Risky content inside build output**  
+  (`public/`, `dist/`, `build/`, `_site/` — wherever your generator puts the goods)
+- **Internal IPs, localhost, and private hostnames** leaking into output  
+  (because `http://192.168.1.47:3000` shouldn’t be in production HTML)
+- **Mixed content** (HTTP links inside HTTPS pages)  
+  (browsers hate this, users don’t trust it, attackers love it)
+- **Accidental `.git/`, config, or key exposure** in generated output  
+  (yes, people deploy their entire `.git` directory to production. yes, really.)
+- **Generator-aware sanity checks**  
+  (Hugo, Jekyll, Astro, Eleventy, Next.js static export, generic sites)
+- **Environment variable misuse patterns**  
+  (hardcoded secrets pretending to be env vars)
+- **Execution-safety checks**  
+  (so the script itself doesn’t do anything dumb while checking if *you’re* doing anything dumb)
 
-**If you need those capabilities, you want a real SAST pipeline and human security review - not a Bash script.**
+-----
 
----
+## What Zimara Does *Not* Do
 
-## Supported Platforms
+Zimara is intentionally scoped. It will not:
 
-- **Linux** (Debian, Ubuntu tested)
-- **macOS** (basic compatibility)
-- Git-based workflows (GitHub, GitLab, Bitbucket)
+- scan for CVEs
+- manage your dependencies
+- generate compliance reports
+- replace your CI security tooling
+- analyze your cloud infrastructure
+- become sentient and judge your life choices (though it might feel that way sometimes)
 
-Zimara is written in POSIX-compatible Bash and avoids non-portable dependencies.
+If you need those things, fantastic — run them too.  
+Zimara just runs **earlier**, when it matters most.
 
-### Static Site Generators
+-----
 
-Auto-detects:
+## What Zimara Catches That CI Doesn’t
 
-- **Hugo** → `public/`
-- **Jekyll** → `_site/`
-- **Astro** → `dist/`
-- **Next.js** → `out/`
-- **Eleventy** → `_site/`
-- **Generic** → common patterns
+**Scenario:** You’re testing a Netlify function locally. You hardcode an API key “just for five minutes” to debug something.
 
-Override with `OUTPUT_DIR=custom/path ./zimara.sh`
+Then you fix the bug, feel good about yourself, and commit.
 
----
+**What happens next:**
+
+- **CI:** Passes (you haven’t configured a secrets scanner yet because “we’ll do that next sprint”)
+- **Netlify:** Deploys it
+- **GitHub:** Indexes it
+- **Google:** Crawls it within 48 hours
+- **Some bot in Estonia:** Uses your API key to rack up $4,700 in charges over the weekend
+
+**Zimara in a pre-commit hook:** Blocks the commit. Key never leaves your laptop. You get coffee instead of a postmortem.
+
+That’s the whole point.
+
+-----
+
+## Supported Projects
+
+Zimara automatically detects what it’s looking at.
+
+Works well with:
+
+- Hugo
+- Jekyll
+- Astro
+- Eleventy
+- Next.js (static export)
+- Mixed or generic static repos
+- That weird custom build system you inherited from the last team
+
+No flags required to tell it what framework you’re using.  
+It just figures it out and gets to work.
+
+-----
 
 ## Requirements
 
-### Minimal
+- Bash 4+
+- Standard Unix tools (`grep`, `awk`, `sed`, `find`)
+- Git (for history and hook usage)
 
-- `bash` (version 4.0+)
-- `git`
-- Standard Unix utilities (`grep`, `find`, `sed`, `cut`, `wc`, `du`)
+**Typical runtime:** <5 seconds for repos under 10,000 files
 
-### Optional
+No internet access required.  
+No installs beyond the script itself.  
+No sudo.  
+No telemetry.  
+No “please create an account to continue.”
 
-- **npm** - Enables dependency audit (CHECK 16)
-- **gitleaks** - Best-in-class secret scanning
-- **detect-secrets** - Yelp's secrets detection
-- **git-secrets** - AWS Labs secrets prevention
-
-No external scanners, package managers, or network access required for core functionality.
-
----
+-----
 
 ## Installation
 
-### Quick Install
+Clone or copy the script somewhere sane.
+
+Make it executable:
 
 ```bash
-curl -O https://raw.githubusercontent.com/oob-skulden/zimara/main/zimara.sh
 chmod +x zimara.sh
 ```
 
-Verify:
-```bash
-./zimara.sh --version
-```
-
-### System-Wide Install
+Optional but recommended: put it in your PATH.
 
 ```bash
-sudo mv zimara.sh /usr/local/bin/zimara
-sudo chmod +x /usr/local/bin/zimara
+mv zimara.sh /usr/local/bin/zimara
 ```
 
-Then run from anywhere:
-```bash
-zimara
-```
+Done.
 
----
+-----
 
 ## Usage
 
-### Basic Usage
-
-From your repository root:
+### Scan the current directory
 
 ```bash
 zimara
 ```
 
-This scans the current directory with default settings.
-
-### Common Options
+or
 
 ```bash
-# CI/CD mode (no prompts, fail on HIGH/CRITICAL)
-zimara --non-interactive
-
-# Skip build output scanning (faster for commits)
-zimara --skip-output
-
-# Scan only build output
-zimara --only-output
-
-# Allow output dir in git (for GitHub Pages, etc.)
-zimara --include-output-in-source
-
-# Check version
-zimara --version
-
-# Get help
-zimara --help
+./zimara.sh
 ```
 
----
+### Scan a specific path
+
+```bash
+zimara /path/to/repo
+```
+
+That’s it. No config files, no setup wizard, no “getting started” documentation that’s somehow 47 pages long.
+
+-----
+
+## Options
+
+```bash
+zimara [path] [options]
+```
+
+|Option                 |Description                                             |
+|-----------------------|--------------------------------------------------------|
+|`[path]`               |Directory to scan (default: current directory)          |
+|`-n, --non-interactive`|No prompts; strict exit codes (CI-safe)                 |
+|`-o, --only-output`    |Scan build output only, skip source files               |
+|`-v, --verbose`        |More detailed output (useful for debugging)             |
+|`--trace-checks`       |Print ENTER/EXIT markers for each check (deep debugging)|
+|`--version`            |Print version and exit                                  |
+|`-h, --help`           |Show help and exit                                      |
+
+### Examples
+
+```bash
+# Basic scan
+zimara
+
+# Scan specific directory with verbose output
+zimara /path/to/repo --verbose
+
+# CI mode (no prompts, strict exit codes)
+zimara --non-interactive
+
+# Only check what gets deployed
+zimara --only-output
+
+# Debug a specific check failure
+zimara --trace-checks --verbose
+```
+
+-----
+
+## Interactive vs Non-Interactive
+
+### Interactive (default)
+
+- You’ll be prompted on Medium and Low findings
+- High and Critical findings stop execution immediately
+- Best for local development when you want a conversation, not a verdict
+
+### Non-Interactive
+
+```bash
+zimara --non-interactive
+```
+
+- No prompts
+- Deterministic exit codes
+- Designed for Git hooks and CI environments where humans aren’t around to answer questions
+
+-----
+
+## Output-Only Mode
+
+```bash
+zimara --only-output
+```
+
+Skips source scanning and focuses exclusively on generated output directories.
+
+Useful when you want to sanity-check what you’re about to deploy without re-scanning the entire repo for the third time today.
+
+-----
 
 ## Exit Codes
 
-Zimara uses explicit exit codes for predictable automation:
+|Code|Meaning                         |
+|----|--------------------------------|
+|0   |No findings, you’re clean       |
+|1   |Low/Medium findings acknowledged|
+|2   |High findings (blocked)         |
+|3   |Critical findings (blocked hard)|
+|10+ |Execution or environment error  |
 
-| Exit Code | Severity | Meaning | Action |
-|-----------|----------|---------|--------|
-| `0` | None | No issues found | ✅ Safe to push |
-| `1` | Medium/Low | Non-blocking issues detected | ⚠️ Review findings; your call |
-| `2` | High | High-severity issues detected | 🛑 Fix before pushing |
-| `3` | Critical | Credentials, private keys, major exposure | 🚨 **DO NOT PUSH** |
-| `99` | - | Invalid usage/directory not found | - |
+Non-interactive mode uses these strictly.  
+Interactive mode will ask nicely before returning 1.
 
-### Using Exit Codes in Scripts
+-----
+
+## Using Zimara as a Pre-Commit Hook
+
+This is where it really shines.
+
+### Installation
+
+Create `.git/hooks/pre-commit` in your repository:
 
 ```bash
-#!/bin/bash
-
+#!/bin/sh
 zimara --non-interactive
-
-case $? in
-  0)
-    echo "✅ Security checks passed"
-    git push
-    ;;
-  1)
-    echo "⚠️ Minor issues - review recommended"
-    # Optional: prompt user
-    git push
-    ;;
-  2)
-    echo "🛑 High-severity issues - fix required"
-    exit 2
-    ;;
-  3)
-    echo "🚨 CRITICAL issues - DO NOT PUSH"
-    exit 3
-    ;;
-esac
 ```
 
----
-
-## Security Checks Reference
-
-Zimara executes 33 numbered checks. Here are the highlights:
-
-### Critical Severity (Exit 3)
-
-1. **Private Keys** - SSH, TLS certs, anything with BEGIN PRIVATE KEY
-2. **Environment Files** - .env and variants
-3. **Secrets in Output** - Config files, keys in published build
-4. **Front Matter Secrets** - API keys in Markdown metadata
-5. **CI/CD Secret Leaks** - GitHub Actions echoing secrets
-6. **Serverless Creds** - Hardcoded tokens in functions
-7. **OAuth client_secret** - In frontend code
-8. **Typosquatting Packages** - Malicious npm lookalikes
-
-### High Severity (Exit 2)
-
-9. **Hardcoded Credentials** - API keys in code
-10. **Debug Files** - phpinfo.php, .sql dumps, test.html
-11. **Build Env Exposure** - Netlify commands leaking vars
-12. **Output Committed** - Build artifacts in git
-13. **CORS Wildcards** - Functions allowing any origin
-14. **SQL in Functions** - Without parameterization
-15. **Forms over HTTP** - Unencrypted submissions
-16. **Analytics PII** - Email in Google Analytics
-17. **Build Downloads** - Curl'ing unknown sources
-
-### Medium Severity (Exit 1)
-
-18. **Large Files** - Anything over 10MB
-19. **Internal URLs** - localhost, 192.168.x.x in output
-20. **Mixed Content** - http:// on https:// pages
-21. **Source Maps** - Exposing original code
-22. **Missing .gitignore** - Or incomplete patterns
-23. **Dependency Vulns** - npm audit findings
-24. **Git History** - Sensitive files in old commits
-25. **Third-party Modules** - Unvetted dependencies
-26. **Sensitive Sitemap Paths** - /admin, /internal
-27. **Scripts Without SRI** - CDN scripts, no integrity hash
-28. **mailto: Forms** - Email harvesting risk
-29. **Implicit OAuth** - Deprecated flow
-30. **localStorage Tokens** - XSS vulnerable
-31. **DNS Takeover Refs** - Links to orphaned subdomains
-32. **Custom npm Registry** - Non-official source
-
-### Low Severity (Exit 1)
-
-33. **Email/Phone Exposure** - Contact info in output
-34. **Protocol-relative URLs** - //cdn.example.com
-35. **Demo Content** - Lorem ipsum placeholders
-36. **Missing .gitignore Patterns** - Incomplete coverage
-37. **Dev Comments** - TODO, FIXME in HTML
-38. **Missing Security Headers** - X-Frame-Options, CSP
-39. **Identity Leaks** - Personal git config
-40. **No Pre-commit Hooks** - Missing prevention
-41. **Client IDs Visible** - OAuth IDs (normal but verify)
-42. **No CSRF Tokens** - Forms without protection
-43. **Stale Key Rotation** - 90+ days unchanged
-
-Check numbering is stable across releases to support automation and documentation.
-
----
-
-## Secret Scanner Integration
-
-Zimara works with external tools when available:
+Make it executable:
 
 ```bash
-# Auto-detect gitleaks, detect-secrets, or git-secrets
-zimara
-
-# Force specific tool
-SECRET_TOOL=gitleaks zimara
-
-# Skip external scanning
-SECRET_TOOL=none zimara
-```
-
-Install any of: gitleaks, detect-secrets, git-secrets. Zimara auto-uses them.
-
-**Configuration files:**
-
-- **gitleaks:** `.gitleaks.toml` (auto-detected)
-- **detect-secrets:** `.secrets.baseline` (auto-detected)
-
----
-
-## Environment Variables
-
-| Variable | Purpose | Default |
-|----------|---------|---------|
-| `SHOW_MATCHES` | Lines to show per finding | 5 |
-| `OUTPUT_DIR` | Override output directory | Auto-detect |
-| `SECRET_TOOL` | Scanner (auto/gitleaks/detect-secrets/git-secrets/none) | auto |
-| `SECRET_BASELINE` | detect-secrets baseline file | .secrets.baseline |
-| `GITLEAKS_CONFIG` | gitleaks config file | .gitleaks.toml |
-
-Examples:
-
-```bash
-# Show only 3 matches per finding
-SHOW_MATCHES=3 zimara
-
-# Custom output directory
-OUTPUT_DIR=build zimara
-
-# Force gitleaks
-SECRET_TOOL=gitleaks zimara
-```
-
----
-
-## Git Hook Integration
-
-### Recommended Pre-Commit Hook
-
-```bash
-#!/usr/bin/env bash
-set -u
-
-REPO_ROOT="$(git rev-parse --show-toplevel)"
-cd "$REPO_ROOT" || exit 1
-
-AUDIT_SCRIPT="/usr/local/bin/zimara"
-
-# Explicit bypass (auditable)
-if [[ "${SKIP_ZIMARA:-0}" == "1" ]]; then
-  echo "ℹ️  SKIP_ZIMARA=1 set; skipping Zimara audit."
-  exit 0
-fi
-
-# Verify script exists
-if [[ ! -x "$AUDIT_SCRIPT" ]]; then
-  echo "🚨 Zimara not found: $AUDIT_SCRIPT"
-  echo ""
-  echo "Install with:"
-  echo "  curl -O https://raw.githubusercontent.com/oob-skulden/zimara/main/zimara.sh"
-  echo "  chmod +x zimara.sh"
-  echo "  sudo mv zimara.sh /usr/local/bin/zimara"
-  echo ""
-  echo "Or bypass once:"
-  echo "  SKIP_ZIMARA=1 git commit -m 'your message'"
-  exit 1
-fi
-
-# Optional: only run on site-relevant files
-STAGED="$(git diff --cached --name-only || true)"
-if [[ -n "$STAGED" ]]; then
-  if ! echo "$STAGED" | grep -Eq '^(content/|layouts/|static/|assets/|data/|config\.|hugo\.|netlify\.toml|package\.json|package-lock\.json|\.env|\.gitignore|functions/|\.github/)'; then
-    echo "ℹ️  No site-relevant files staged; skipping Zimara audit."
-    exit 0
-  fi
-fi
-
-echo "🔒 Running Zimara Security Audit before commit..."
-echo ""
-
-"$AUDIT_SCRIPT" "$REPO_ROOT" --skip-output --non-interactive
-EXIT_CODE=$?
-
-echo ""
-
-case "$EXIT_CODE" in
-  0)
-    echo "✅ Security audit passed"
-    exit 0
-    ;;
-  1)
-    echo "⚠️  MEDIUM/LOW security issues found (commit allowed)"
-    echo "    Recommended: review and fix when practical."
-    echo ""
-    echo "To review:"
-    echo "  zimara --skip-output"
-    exit 0
-    ;;
-  2)
-    echo "❌ HIGH security issues found — must fix before committing"
-    echo ""
-    echo "Run for details:"
-    echo "  zimara --skip-output"
-    echo ""
-    echo "To bypass (not recommended):"
-    echo "  SKIP_ZIMARA=1 git commit -m 'your message'"
-    exit 1
-    ;;
-  3)
-    echo "🚨 CRITICAL security issues found — must fix immediately"
-    echo ""
-    echo "Run for details:"
-    echo "  zimara --skip-output"
-    echo ""
-    echo "DO NOT bypass - fix the issues or remove them from staging:"
-    echo "  git reset HEAD <file>"
-    exit 1
-    ;;
-  *)
-    echo "⚠️  Unexpected error from security audit (exit code: $EXIT_CODE)"
-    echo ""
-    echo "To bypass:"
-    echo "  SKIP_ZIMARA=1 git commit -m 'your message'"
-    exit 1
-    ;;
-esac
-```
-
-**Install:**
-
-```bash
-# From your repository root
-cat > .git/hooks/pre-commit << 'EOF'
-[paste hook above]
-EOF
-
 chmod +x .git/hooks/pre-commit
 ```
 
-**Intentional Bypass:**
+### What This Does
+
+Now every time you try to commit:
+
+- Critical or High issues **block the commit immediately**
+- Medium/Low issues are allowed (but visible in the output)
+- No surprises after you push
+- No explaining to your team why the staging environment is serving your AWS credentials
+- No 3am pages because someone accidentally committed the database password
+
+### Want Prompts Instead?
+
+If you prefer to be asked about Medium/Low findings before the commit is blocked, drop `--non-interactive`:
 
 ```bash
-SKIP_ZIMARA=1 git commit -m "commit message"
+#!/bin/sh
+zimara
 ```
 
----
+This gives you the option to proceed with caution instead of a hard block.
 
-## CI/CD Integration
+### Per-Project vs Global Hooks
 
-Zimara can be used in CI as a fast, early-fail signal, but it is **not** a replacement for:
+The above installs the hook **per repository**.
 
-- Secret scanning (GitHub Secret Scanning, GitLab Secret Detection)
-- Dependency vulnerability scanning (Dependabot, Snyk, WhiteSource)
-- SAST / DAST (CodeQL, Semgrep, SonarQube)
+If you want Zimara to run on *every* repo you work on, look into:
 
-### Example GitHub Actions
+- Git templates (`git config --global init.templatedir`)
+- Git hook managers (like `pre-commit` or `husky`)
 
-```yaml
-name: Security
+But honestly? Installing it per-repo is usually the right call.  
+Not every project needs the same level of paranoia.
 
-on: [push, pull_request]
+-----
 
-jobs:
-  zimara:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Full history for git checks
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-        if: hashFiles('package.json') != ''
-      
-      - name: Install dependencies
-        run: npm ci
-        if: hashFiles('package.json') != ''
-      
-      - name: Install gitleaks
-        run: |
-          wget https://github.com/gitleaks/gitleaks/releases/download/v8.18.0/gitleaks_8.18.0_linux_x64.tar.gz
-          tar -xzf gitleaks_8.18.0_linux_x64.tar.gz
-          sudo mv gitleaks /usr/local/bin/
-      
-      - name: Run Zimara
-        run: |
-          chmod +x zimara.sh
-          ./zimara.sh --non-interactive
-        env:
-          SECRET_TOOL: gitleaks
-```
+## Safety Guarantees
 
-**Typical CI usage:** Many teams fail CI on exit codes ≥ 2.
+Zimara is designed to be boring in the best possible way.
 
----
+It:
 
-## Design Philosophy
+- does not modify files
+- does not write to the repo (except temp files in `/tmp`, which are cleaned on exit)
+- does not install anything
+- does not phone home
+- does not execute project code
+- does not require root
+- does not trust user input without validation
 
-Zimara favors:
+If it breaks, it fails closed and tells you why.  
+If you find a way to make it do something dangerous, that’s a bug — please report it.
 
-- **Clarity over cleverness** - Readable checks, predictable behavior
-- **Deterministic results** - Same input = same output
-- **Zero network calls** - Works offline
-- **Stable check numbering** - For docs and automation
-- **Fits real workflows** - Security that doesn't get removed
+-----
 
-**If a security tool is painful to use, people remove it. Zimara stays enabled.**
+## When You Should Not Use Zimara
 
----
+- You want vulnerability scores and CVE feeds → use a SAST tool
+- You need compliance paperwork → hire an auditor
+- You expect it to fix problems for you → it won’t, by design
+- You want cloud or runtime analysis → wrong layer entirely
+- You think bash scripts are “unprofessional” → we can’t be friends
 
-## What Zimara Does NOT Do
+Zimara is a flashlight, not an autopilot.
 
-Zimara does not:
+-----
 
-- Replace CI security tooling (GitHub Secret Scanning, Dependabot, CodeQL)
-- Perform dependency vulnerability analysis (use Snyk, npm audit, OWASP Dependency-Check)
-- Scan live services or deployed infrastructure
-- Phone home or require network access
-- Provide penetration testing or threat modeling
-- Analyze runtime vulnerabilities (XSS, CSRF, SQL injection)
+## Philosophy
 
-**Zimara is a local pre-flight check.** Fast, deterministic, zero dependencies.
+Most security tools assume you already messed up.
 
-For production: use GitHub scanning, Dependabot, actual SAST tools.
+Zimara assumes you’re *trying* not to.
 
----
+It’s not here to shame you. It’s here to save you from yourself before the internet does.
 
-## Sample Output
+Run it early.  
+Run it often.  
+Let it be annoying **now** instead of explaining it to your CISO **later**.
 
-Example output (abbreviated):
+Or worse: explaining it to Reddit.
 
-```text
-==============================================
-🔒 Zimara 🔒  (v0.44.0)
-==============================================
+-----
 
-Directory scanned: /home/user/my-site
-Generator detected: hugo
-Output dir detected: public
-Mode: Non-interactive (CI/CD)
+## What’s Not Planned
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CHECK 1: Private Keys (HARD STOP)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✓ No private keys found
+Zimara will not:
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CHECK 2: Environment / Secrets Files
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✓ No .env files found
+- Become a SaaS
+- Add ML/AI “smart” detection (it’s grep, not GPT)
+- Require account creation or telemetry
+- Grow beyond what fits in one bash script
+- Pivot to blockchain
+- Get acquired and then ruined
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CHECK 3: Hardcoded Credentials
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️  Possible hardcoded credentials [HIGH]
-  config.toml:42: api_key = "sk_test_xxxxxxxxxx"
-Actions:
-  • Replace with env vars / secret manager references
-  • Rotate exposed values
+If you need enterprise features, fork it.  
+If you want to contribute, keep it simple.  
+If you want to sell it, you can’t — it’s not for sale.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CHECK X: Enhanced Secret Scanning (optional tools)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ℹ️  Using gitleaks
-✓ gitleaks: no secrets found
-
-[... additional checks ...]
-
-==============================================
-🔒 FINAL SECURITY SUMMARY 🔒
-==============================================
-
-Generator detected: hugo
-Output dir detected: public
-
-🚨 CRITICAL: 0 issue(s) - FIX IMMEDIATELY
-⚠️  HIGH:     2 issue(s) - Fix soon
-⚠️  MEDIUM:   3 issue(s) - Address when possible
-ℹ️  LOW:      1 issue(s) - Nice to fix
-
-Priority actions (in order):
-  1. ⚠️  Address HIGH priority issues
-  2. ⚠️  Review MEDIUM priority issues
-  3. ℹ️  Consider LOW priority improvements
-
-==============================================
-Generated by: 🦛 Published by Oob Skulden™ 🦛
-"The threats you don't see coming"
-==============================================
-```
-
-**Exit code:** 2 (HIGH severity issues detected)
-
----
-
-## Future Enhancements
-
-### Short-Term
-
-- **JSON output mode (`--json`)** - Structured output for CI/CD automation
-- **Fail-on threshold flag (`--fail-on high|critical`)** - Severity-based exit behavior
-- **Common fixes quick reference** - Actionable next steps after final summary
-
-### Medium-Term
-
-- **Configuration file support** - `.zimara.yml` for project-specific settings
-- **Parallel scanning** - Multi-threaded for repos with 10,000+ files
-- **Additional generators** - Docusaurus, VuePress, Gatsby, Nuxt.js
-
-### Long-Term
-
-- **Plugin system** for custom checks
-- **Interactive mode** with fix/ignore/defer prompts
-- **Security dashboard integration**
-
----
+-----
 
 ## Contributing
 
-Contributions welcome for bug fixes, additional generators, secret patterns, and documentation.
+PRs welcome for:
 
-**Guidelines:**
+- New checks that catch real issues
+- Bug fixes
+- Performance improvements
+- Better documentation
 
-1. Keep the script opinionated and focused on real-world exploitability
-2. Maintain backward compatibility for flags and exit codes
-3. Document all new checks with severity rationale
-4. Respect the Oob Skulden™ trademark usage rules
-5. Test against multiple static site generators
+Not welcome:
 
-**Before submitting a PR:**
+- Scope creep
+- Dependencies on tools most people don’t have
+- “Wouldn’t it be cool if…” features that triple the runtime
+- Anything that requires `npm install`
 
-1. Test against multiple generators
-2. Verify exit codes remain consistent
-3. Update README if adding features
-4. Run the script against itself: `zimara`
+Keep it fast. Keep it local. Keep it honest.
 
----
+-----
 
 ## License
 
-**Published by Oob Skulden™**
+MIT License — see `LICENSE` file.
 
-MIT License (for the code).
+TL;DR: Use it however you want. Don’t blame me if something breaks. Credit appreciated but not required.
 
-Oob Skulden™ is a trademark. USPTO registration pending.
+-----
 
----
+## Credits
 
-## Support and Contact
+Written by a security engineer who got tired of seeing the same preventable mistakes in every repository.
 
-- **Issue Tracker:** https://github.com/oob-skulden/zimara/issues
-- **Discussions:** https://github.com/oob-skulden/zimara/discussions
-- **Security Guides:** https://oobskulden.com/security-guides
+Published by Oob Skulden™.
 
-**Found a security issue in Zimara itself?**
+If this saved you from a bad day, you can say thanks by:
 
-Please reach out to me in any of the forms found on my website **Ook Skulden** https://oobskulden.com
+- Not committing secrets
+- Actually running it before you push
+- Telling other developers it exists
 
----
+That’s it. No donations, no GitHub stars required (but they’re nice), no newsletter signup.
 
-## Acknowledgments
+Just… be more careful out there.
 
-Zimara is informed by real-world incident response experience, OWASP guidance, and lessons learned from open-source tooling such as:
+-----
 
-- gitleaks
-- detect-secrets
-- git-secrets
-
-Zimara intentionally remains self-contained to avoid dependency drift and environment-specific failures.
-
-The tool emerged organically while securing and publishing a production static website (https://oobskulden.com), where recurring risks and overlooked edge cases shaped its scope and checks over time.
-
----
-
-**Published by Oob Skulden™**  
-**"The threats you don't see coming"**  
-**🦛 95% underwater 🦛**
+**Questions?**  
+Read the script. It’s extensively commented.  
+Still confused? Open an issue.  
+Need consulting? You’re on your own — this is a free tool, not a business.​​​​​​​​​​​​​​​​
