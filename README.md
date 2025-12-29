@@ -411,7 +411,7 @@ TL;DR: Use it however you want. Don’t blame me if something breaks. Credit app
 
 ## Credits
 
-Written by a security engineer who got tired of seeing the same preventable mistakes in every repository.
+Written by a security engineer who got fed up with fixing the same “how did this get committed?” problems, built while working on his own site, and completed over five nights of truly questionable sleep hygiene.
 
 Published by Oob Skulden™.
 
@@ -421,9 +421,11 @@ If this saved you from a bad day, you can say thanks by:
 - Actually running it before you push
 - Telling other developers it exists
 
-That’s it. No donations, no GitHub stars required (but they’re nice), no newsletter signup.
+That’s it. No donations (unless you want to cover a coffee or a $5 afternoon tea), no GitHub stars required (nice, but not mandatory), and no newsletter signups.
 
-Just… be more careful out there.
+Maybe a YouTube video about it one day. Still not starting a newsletter.
+
+Just… be careful out there. Things get spicy fast.
 
 -----
 
