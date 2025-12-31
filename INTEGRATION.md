@@ -4,10 +4,19 @@
 
 This guide covers running Zimara as a Git hook, in CI/CD pipelines, and integrating it into your development workflow without making everyone on your team hate you.
 
-**Related Documentation:**
+## Related Documentation
 
-- <README.md> - Overview and quick start
-- <CHECKS.md> - Complete check reference with remediation steps
+- [**CHECKS.md**][checks] – Complete reference for all 45 security checks  
+- [**INTEGRATION.md**][integration] – Git hooks, CI/CD setup, and team adoption
+- [**SECURITY.md**][security] – Security considerations, trust boundaries, and safe-usage guidance  
+- [**CHANGELOG.md**](CHANGELOG.md) – Release history and notable changes
+- [**LICENSE**][license] – AGPL-3.0  
+
+[checks]: CHECKS.md
+[integration]: INTEGRATION.md
+[security]: SECURITY.md
+[change log]: CHANGELOG.md
+[license]: LICENSE
 
 -----
 
