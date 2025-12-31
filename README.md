@@ -519,7 +519,7 @@ If you need enterprise features, fork it. If you want to contribute, keep it sim
 
 - **CHECKS.md** - Complete reference for all 45 security checks
 - **INTEGRATION.md** - Git hooks, CI/CD setup, and team adoption
-- **LICENSE** - MIT License
+- **LICENSE** - AGPL-3.0
 
 -----
 
