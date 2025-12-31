@@ -171,7 +171,6 @@ No flags required to tell it what framework you’re using. It just figures it o
 **Supported environments:**
 
 - Linux (all major distributions)
-- macOS (with Homebrew or MacPorts)
 - Windows WSL 2 (confirmed working - not native Windows)
 - Docker containers (see [INTEGRATION.md](INTEGRATION.md#docker-containers) for usage)
 
@@ -546,9 +545,11 @@ Keep it fast. Keep it local. Keep it honest.
 
 ## License
 
-MIT License — see LICENSE file.
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![GitHub stars](https://img.shields.io/github/stars/YOUR_USERNAME/YOUR_REPO_NAME)](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME/stargazers)
 
-TL;DR: Use it however you want. Don’t blame me if something breaks. Credit appreciated but not required.
+AGPL-3.0 License — see LICENSE file.
+
 
 -----
 
