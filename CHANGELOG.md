@@ -7,6 +7,47 @@ user-visible changes, security improvements, and behavioral changes.
 
 ---
 
+## [0.49.5] - 2025-12-31
+
+### Changed
+- Improved execution model using `set -u` and `set -o pipefail` without `set -e`
+- All 45 checks now complete execution regardless of individual check failures
+- Enhanced reliability for comprehensive security scanning
+
+### Fixed
+- Execution flow now ensures complete scan coverage
+- Improved error handling for edge cases in file detection
+
+---
+
+## [0.49.1] - 2025-12-30
+
+### Added
+- Bash 3.2+ compatibility for legacy system support
+- Baseline bypass prevention in structured output modes
+
+### Security
+- Hardened JSON/SARIF output to prevent baseline manipulation
+- Improved content-aware fingerprinting for secret detection
+- Enhanced safe message construction preventing secret value leakage
+
+---
+
+## [0.49.0] - 2025-12-30
+
+### Added
+- Structured output formats: JSON and SARIF
+- Baseline diffing capabilities for incremental security adoption
+- Content-aware fingerprinting for findings
+- Multiple output format support (text, JSON, SARIF)
+
+### Security
+- Safe message construction in structured outputs
+- Prevention of secret value leakage in JSON/SARIF exports
+- Comprehensive security fixes for structured output attack vectors
+
+---
+
 ## [0.48.0] - 2025-12-29
 
 ### Added
@@ -49,4 +90,3 @@ user-visible changes, security improvements, and behavioral changes.
 - Severity-based findings with actionable remediation guidance
 
 ---
-

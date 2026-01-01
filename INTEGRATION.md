@@ -1,16 +1,16 @@
 **Zimara Integration Guide**  
-**Version 0.48.0**  
-**Published by Oob Skuldenâ„¢**
+**Version 0.49.5**  
+**Published by Oob Skulden™**
 
 This guide covers running Zimara as a Git hook, in CI/CD pipelines, and integrating it into your development workflow without making everyone on your team hate you.
 
 ## Related Documentation
 
-- [**CHECKS.md**][checks] â€“ Complete reference for all 45 security checks  
-- [**INTEGRATION.md**][integration] â€“ Git hooks, CI/CD setup, and team adoption
-- [**SECURITY.md**][security] â€“ Security considerations, trust boundaries, and safe-usage guidance  
-- [**CHANGELOG.md**](CHANGELOG.md) â€“ Release history and notable changes
-- [**LICENSE**][license] â€“ AGPL-3.0  
+- [**CHECKS.md**][checks] – Complete reference for all 45 security checks  
+- [**INTEGRATION.md**][integration] – Git hooks, CI/CD setup, and team adoption
+- [**SECURITY.md**][security] – Security considerations, trust boundaries, and safe-usage guidance  
+- [**CHANGELOG.md**](CHANGELOG.md) – Release history and notable changes
+- [**LICENSE**][license] – AGPL-3.0  
 
 [checks]: CHECKS.md
 [integration]: INTEGRATION.md
@@ -27,13 +27,13 @@ This guide covers running Zimara as a Git hook, in CI/CD pipelines, and integrat
 - [CI/CD Integration](#cicd-integration)
 - [Docker Containers](#docker-containers)
 - [Team Adoption Strategies](#team-adoption-strategies)
-- [When Zimara Isnâ€™t Enough](#when-zimara-isnt-enough)
+- [When Zimara Isn’t Enough](#when-zimara-isnt-enough)
 
 -----
 
 ## Git Hooks Integration
 
-Git hooks are where Zimara does its best work. Run it before you commit or push, and youâ€™ll catch problems while theyâ€™re still local and fixable without the postmortem.
+Git hooks are where Zimara does its best work. Run it before you commit or push, and you’ll catch problems while they’re still local and fixable without the postmortem.
 
 ### Pre-Commit Hook (Recommended)
 
@@ -65,7 +65,7 @@ chmod +x .git/hooks/pre-commit
 - Fastest feedback loop
 - Prevents bad commits from entering history
 - Forces you to deal with issues when context is fresh
-- No â€œIâ€™ll fix it in the next commitâ€ procrastination
+- No “I’ll fix it in the next commit” procrastination
 
 ### Pre-Push Hook (Alternative)
 
@@ -85,12 +85,12 @@ chmod +x .git/hooks/pre-push
 
 **Why pre-push instead:**
 
-- Less intrusive (doesnâ€™t block every commit)
+- Less intrusive (doesn’t block every commit)
 - Still catches issues before they hit the remote
 - Good for teams that commit frequently and push rarely
 - Allows local experimentation without constant blocking
 
-**Trade-off:** Issues that make it into commit history are harder to fix later. Youâ€™ll need to amend commits or rewrite history.
+**Trade-off:** Issues that make it into commit history are harder to fix later. You’ll need to amend commits or rewrite history.
 
 ### Interactive Mode in Hooks
 
@@ -102,13 +102,13 @@ If you want to be prompted about Medium/Low findings instead of automatic allow:
 exit $?
 ```
 
-This gives you a choice on each finding. Useful when youâ€™re still learning what Zimara considers risky.
+This gives you a choice on each finding. Useful when you’re still learning what Zimara considers risky.
 
 **Warning:** Interactive mode in hooks can be annoying if you commit frequently. Use with caution.
 
 ### Making Hooks Easier to Share
 
-The above approach requires every developer to set up hooks manually. Thatâ€™s error-prone and people forget.
+The above approach requires every developer to set up hooks manually. That’s error-prone and people forget.
 
 **Better approach: Committed hook script**
 
@@ -151,7 +151,7 @@ After cloning:
 3. You're ready to commit
 ```
 
-People still need to run it, but at least itâ€™s documented and easy.
+People still need to run it, but at least it’s documented and easy.
 
 ### Global Git Hooks (Advanced)
 
@@ -213,7 +213,7 @@ repos:
 ./zimara.sh --non-interactive
 ```
 
-Hook managers are great if you already have them. Donâ€™t install one just for Zimara unless you need other hooks too.
+Hook managers are great if you already have them. Don’t install one just for Zimara unless you need other hooks too.
 
 -----
 
@@ -261,7 +261,7 @@ tests/fixtures/*           # Intentional fake credentials for testing
 dist/*                     # Generated bundles (scanned pre-build)
 ```
 
-**DONâ€™T:**
+**DON’T:**
 
 ```
 # No comment, unclear why
@@ -330,14 +330,14 @@ WARNING: Very broad pattern may disable important checks: *
 Loaded 3 valid pattern(s) from .zimaraignore
 ```
 
-Invalid patterns are rejected but donâ€™t break the scan. Valid patterns still apply.
+Invalid patterns are rejected but don’t break the scan. Valid patterns still apply.
 
 ### When NOT to Use .zimaraignore
 
 **Never use .zimaraignore to:**
 
 - Hide real production secrets (rotate them and fix your patterns instead)
-- Silence â€œannoyingâ€ warnings in production code (those are usually important)
+- Silence “annoying” warnings in production code (those are usually important)
 - Exclude security-critical configuration files
 - Work around fundamental security issues
 
@@ -348,7 +348,7 @@ Invalid patterns are rejected but donâ€™t break the scan. Valid patterns still a
 src/admin/auth.js
 ```
 
-Youâ€™re using `.zimaraignore` wrong. Fix the underlying issue.
+You’re using `.zimaraignore` wrong. Fix the underlying issue.
 
 ### Team Adoption with .zimaraignore
 
@@ -357,8 +357,8 @@ Youâ€™re using `.zimaraignore` wrong. Fix the underlying issue.
 1. New developer clones repo
 1. Runs `./scripts/setup-hooks.sh`
 1. Makes first commit
-1. Zimara runs with teamâ€™s exclusion patterns already applied
-1. No â€œfalse positiveâ€ complaints about test fixtures
+1. Zimara runs with team’s exclusion patterns already applied
+1. No “false positive” complaints about test fixtures
 
 **Document your patterns:**
 
@@ -377,7 +377,7 @@ legacy/analytics-widget.js
 
 This prevents:
 
-- â€œWhy is this excluded?â€ questions
+- “Why is this excluded?” questions
 - Pattern drift over time
 - Exclusions that outlive their purpose
 
@@ -422,7 +422,7 @@ Treat `.zimaraignore` like technical debt: necessary sometimes, but monitor it.
 
 ## CI/CD Integration
 
-Zimara runs fine in CI, but remember: itâ€™s designed as a local-first tool. CI is your backup plan, not your primary defense.
+Zimara runs fine in CI, but remember: it’s designed as a local-first tool. CI is your backup plan, not your primary defense.
 
 ### Why Run in CI at All?
 
@@ -469,6 +469,100 @@ jobs:
 - `--non-interactive` means no prompts in CI
 - Exit codes determine if workflow passes or fails
 - `.zimaraignore` patterns automatically applied
+
+
+### With SARIF Output for GitHub Code Scanning
+
+Zimara can generate SARIF output compatible with GitHub's Code Scanning feature:
+
+```yaml
+name: Security Audit with SARIF
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  security-events: write  # Required for uploading SARIF
+
+jobs:
+  zimara:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29  # v4.1.6
+        with:
+          fetch-depth: 0
+      
+      - name: Make Zimara executable
+        run: chmod +x zimara.sh
+      
+      - name: Run Zimara with SARIF output
+        run: ./zimara.sh --format sarif --non-interactive > zimara-results.sarif
+        continue-on-error: true  # Don't fail workflow, let SARIF upload happen
+      
+      - name: Upload SARIF results to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: zimara-results.sarif
+          category: zimara-security
+```
+
+This integration surfaces Zimara findings directly in GitHub's Security tab alongside other code scanning results.
+
+### With Baseline for Incremental Adoption
+
+For large existing codebases with security debt, use baseline diffing to block only new issues:
+
+```yaml
+name: Security Audit (Baseline Mode)
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  zimara:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+        with:
+          fetch-depth: 0
+      
+      - name: Make Zimara executable
+        run: chmod +x zimara.sh
+      
+      - name: Run Zimara against baseline
+        run: |
+          if [ -f .zimara-baseline.json ]; then
+            ./zimara.sh --baseline .zimara-baseline.json --non-interactive
+          else
+            echo "No baseline found, running full scan"
+            ./zimara.sh --non-interactive
+          fi
+```
+
+**Workflow for establishing baseline:**
+
+```bash
+# 1. Generate baseline from current state
+./zimara.sh --save-baseline .zimara-baseline.json
+
+# 2. Commit baseline to repository
+git add .zimara-baseline.json
+git commit -m "Add Zimara security baseline"
+git push
+
+# 3. CI now blocks only new findings
+# Gradually fix baseline issues to improve security posture
+```
 
 ### With Optional Dependencies
 
@@ -568,7 +662,7 @@ workflows:
 
 ### Handling Exit Codes in CI
 
-Zimaraâ€™s exit codes are deterministic by severity:
+Zimara’s exit codes are deterministic by severity:
 
 - **0**: Clean, workflow passes
 - **1**: Medium/Low findings, workflow fails
@@ -607,7 +701,7 @@ on:
     branches: [ main ]
 ```
 
-Donâ€™t run on every feature branch push if you have hundreds of developers.
+Don’t run on every feature branch push if you have hundreds of developers.
 
 **2. Use output-only mode for deploy checks:**
 
@@ -617,7 +711,7 @@ Donâ€™t run on every feature branch push if you have hundreds of developers.
   run: ./zimara.sh --only-output --non-interactive
 ```
 
-This skips source scanning and only checks whatâ€™s about to deploy.
+This skips source scanning and only checks what’s about to deploy.
 
 **3. Cache dependencies if using npm audit:**
 
@@ -642,18 +736,18 @@ CHECK 04: Secrets Pattern Scan
 ------------------------------------------------------------
   Possible Secret
   File: src/config.js:42
-  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  ----------------------------------------
       40 | const config = {
       41 |   apiUrl: process.env.API_URL,
   >>  42 |   apiKey: "AKIA00000000EXAMPLE1234",
       43 |   timeout: 5000
       44 | };
-  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  ----------------------------------------
   Pattern: (AKIA[0-9A-Z]{16}|...)
   Action: Remove secret, rotate credentials
 ```
 
-This makes CI failures much easier to debug â€” you can see exactly what triggered the finding without hunting through files.
+This makes CI failures much easier to debug — you can see exactly what triggered the finding without hunting through files.
 
 **Adjust context for CI:**
 
@@ -675,7 +769,7 @@ More context = easier debugging, but longer logs.
 
 ## Docker Containers
 
-Zimara runs in Docker containers with minimal setup. This is useful for isolated scanning, consistent environments, or when you canâ€™t (or donâ€™t want to) install Zimara locally.
+Zimara runs in Docker containers with minimal setup. This is useful for isolated scanning, consistent environments, or when you can’t (or don’t want to) install Zimara locally.
 
 ### Why Run Zimara in Docker?
 
@@ -688,7 +782,7 @@ Zimara runs in Docker containers with minimal setup. This is useful for isolated
 **Consistency:**
 
 - Same environment across all developers
-- Eliminates â€œworks on my machineâ€ issues
+- Eliminates “works on my machine” issues
 - Guaranteed compatible Bash/Unix tools versions
 
 **Convenience:**
@@ -722,7 +816,7 @@ docker run --rm -v $(pwd):/repo -w /repo ubuntu:22.04 bash -c "
 
 ### Dockerfile for Repeated Use
 
-If youâ€™re scanning repos regularly, build a reusable image:
+If you’re scanning repos regularly, build a reusable image:
 
 **Create `Dockerfile`:**
 
@@ -767,7 +861,7 @@ docker run --rm -v $(pwd):/repo zimara:latest --only-output
 
 ### Alpine Linux (Smaller Image)
 
-For a minimal image (~5MB vs Ubuntuâ€™s ~80MB):
+For a minimal image (~5MB vs Ubuntu’s ~80MB):
 
 ```dockerfile
 FROM alpine:3.18
@@ -797,7 +891,7 @@ docker run --rm -v $(pwd):/repo zimara:alpine
 
 ### Windows Support (via Docker Desktop)
 
-Zimara doesnâ€™t run natively on Windows, but works perfectly in Docker Desktop:
+Zimara doesn’t run natively on Windows, but works perfectly in Docker Desktop:
 
 **Prerequisites:**
 
@@ -920,7 +1014,7 @@ ENTRYPOINT ["zimara"]
 CMD ["--non-interactive"]
 ```
 
-This gives you CHECK 12 (gitleaks) and CHECK 14 (npm audit) in addition to Zimaraâ€™s built-in checks.
+This gives you CHECK 12 (gitleaks) and CHECK 14 (npm audit) in addition to Zimara’s built-in checks.
 
 ### Platform Support
 
@@ -928,25 +1022,25 @@ Zimara works on multiple platforms:
 
 **Native support:**
 
-- âœ… Linux (all major distributions - Ubuntu, Debian, Fedora, Arch, etc.)
-- âœ… macOS (Intel and Apple Silicon)
-- âœ… Windows WSL 2 (Windows Subsystem for Linux)
+- ? Linux (all major distributions - Ubuntu, Debian, Fedora, Arch, etc.)
+- ? macOS (Intel and Apple Silicon)
+- ? Windows WSL 2 (Windows Subsystem for Linux)
 
 **Via Docker:**
 
-- âœ… Windows (Docker Desktop with WSL 2 backend)
-- âœ… Any platform with Docker installed
+- ? Windows (Docker Desktop with WSL 2 backend)
+- ? Any platform with Docker installed
 
 **NOT supported:**
 
-- âŒ Native Windows (PowerShell/CMD) - use WSL 2 or Docker instead
-- âŒ Windows WSL 1 (lacks full bash compatibility) - upgrade to WSL 2
+- ? Native Windows (PowerShell/CMD) - use WSL 2 or Docker instead
+- ? Windows WSL 1 (lacks full bash compatibility) - upgrade to WSL 2
 
-**Windows users:** We recommend WSL 2 over Docker Desktop if you plan to run Zimara frequently. Itâ€™s faster and uses fewer resources. See [Running in WSL 2](#running-in-wsl-2).
+**Windows users:** We recommend WSL 2 over Docker Desktop if you plan to run Zimara frequently. It’s faster and uses fewer resources. See [Running in WSL 2](#running-in-wsl-2).
 
 ### Running in WSL 2
 
-If youâ€™re on Windows and have WSL 2 installed, you can run Zimara natively without Docker:
+If you’re on Windows and have WSL 2 installed, you can run Zimara natively without Docker:
 
 **Setup (one-time):**
 
@@ -973,16 +1067,16 @@ cd /mnt/c/Users/YourName/projects/my-repo
 zimara --non-interactive
 ```
 
-**Performance note:** WSL 2 is significantly faster than Docker Desktop for frequent scans because thereâ€™s no container overhead.
+**Performance note:** WSL 2 is significantly faster than Docker Desktop for frequent scans because there’s no container overhead.
 
 ### Docker Troubleshooting
 
-**â€œCannot connect to Docker daemonâ€**
+**“Cannot connect to Docker daemon”**
 
 - Ensure Docker Desktop is running (Windows/Mac)
 - On Linux, start Docker: `sudo systemctl start docker`
 
-**â€œPermission deniedâ€ on volume mount**
+**“Permission denied” on volume mount**
 
 - Windows: Ensure drive sharing is enabled in Docker Desktop settings
 - Linux: Add your user to docker group: `sudo usermod -aG docker $USER` (logout/login required)
@@ -993,10 +1087,10 @@ zimara --non-interactive
 - Run from WSL 2 terminal instead of PowerShell for better file I/O
 - Consider native WSL 2 installation instead of Docker
 
-**Container canâ€™t access .git directory**
+**Container can’t access .git directory**
 
-- Ensure youâ€™re mounting the repo root, not a subdirectory
-- Check that `.git` isnâ€™t in `.dockerignore`
+- Ensure you’re mounting the repo root, not a subdirectory
+- Check that `.git` isn’t in `.dockerignore`
 
 ### When to Use Docker vs Native
 
@@ -1028,7 +1122,7 @@ Getting a team to use a new security tool is like getting them to floss. Everyon
 
 **Week 1: Observational**
 
-Run Zimara in CI in â€œwarning-onlyâ€ mode:
+Run Zimara in CI in “warning-only” mode:
 
 ```yaml
 - name: Run Zimara (informational)
@@ -1042,9 +1136,9 @@ This shows findings without blocking. Review them in team meetings. Build awaren
 
 Review common findings with the team:
 
-- â€œWe have 47 backup files committed, letâ€™s clean those upâ€
-- â€œThree repos have AWS keys in git history, we need to rotate thoseâ€
-- â€œAnyone know why we have phpinfo.php in production output?â€
+- “We have 47 backup files committed, let’s clean those up”
+- “Three repos have AWS keys in git history, we need to rotate those”
+- “Anyone know why we have phpinfo.php in production output?”
 
 Fix the obvious stuff. Get buy-in.
 
@@ -1056,7 +1150,7 @@ vendor/*              # Third-party code
 tests/fixtures/*      # Intentional test data
 ```
 
-This shows youâ€™re listening and solving friction points.
+This shows you’re listening and solving friction points.
 
 **Week 4: Enforcement**
 
@@ -1066,7 +1160,7 @@ By this point, most common issues are fixed and people understand why Zimara exi
 
 ### The Documentation Approach
 
-Add a â€œSecurityâ€ section to your contributing guidelines:
+Add a “Security” section to your contributing guidelines:
 
 ```markdown
 ## Security Checks
@@ -1114,33 +1208,33 @@ Some teams track security metrics:
 
 Make it visible. Make it slightly competitive. Humans are weird about leaderboards.
 
-### The â€œLead by Exampleâ€ Approach
+### The “Lead by Example” Approach
 
 Senior developers use Zimara consistently. They fix findings in their PRs before requesting review. They mention it in code reviews when they catch issues Zimara would have flagged.
 
-Culture change happens top-down. If leadership doesnâ€™t care about security tooling, nobody else will either.
+Culture change happens top-down. If leadership doesn’t care about security tooling, nobody else will either.
 
 ### Dealing with Resistance
 
-**â€œItâ€™s too slowâ€**
+**“It’s too slow”**
 
-Zimara runs in under 5 seconds for most repos. If itâ€™s slow, theyâ€™re probably committing 50MB of node_modules. Thatâ€™s a different problem.
+Zimara runs in under 5 seconds for most repos. If it’s slow, they’re probably committing 50MB of node_modules. That’s a different problem.
 
-**â€œIt has false positivesâ€**
+**“It has false positives”**
 
-Show them the snippet. Explain why itâ€™s flagged. Most â€œfalse positivesâ€ are real issues that donâ€™t feel important until they become important very suddenly.
+Show them the snippet. Explain why it’s flagged. Most “false positives” are real issues that don’t feel important until they become important very suddenly.
 
 For legitimate false positives (test fixtures with fake secrets), add to `.zimaraignore` with a comment explaining why.
 
-**â€œI know what Iâ€™m doingâ€**
+**“I know what I’m doing”**
 
 Great. Then fixing the findings should be trivial for someone of your expertise.
 
-**â€œIâ€™ll fix it laterâ€**
+**“I’ll fix it later”**
 
 Later never comes. Fix it now while context is fresh.
 
-**â€œCI will catch itâ€**
+**“CI will catch it”**
 
 CI catches it after you push. Hooks catch it before. Prevention beats cleanup.
 
@@ -1156,7 +1250,7 @@ This is less pleasant than voluntary adoption, but sometimes you need enforcemen
 
 ### Using .zimaraignore to Reduce Friction
 
-One common adoption blocker: â€œZimara keeps flagging our test fixtures!â€
+One common adoption blocker: “Zimara keeps flagging our test fixtures!”
 
 Solution:
 
@@ -1166,7 +1260,7 @@ tests/fixtures/mock-oauth-response.json    # Contains fake API keys for testing
 tests/data/example-credentials.yml         # Test data, not real secrets
 ```
 
-Now developers donâ€™t feel like theyâ€™re fighting the tool.
+Now developers don’t feel like they’re fighting the tool.
 
 **Document the pattern:**
 
@@ -1186,33 +1280,33 @@ If you add test files with intentional fake secrets:
 3. Commit both the fixture and .zimaraignore update together
 ```
 
-This creates a pattern thatâ€™s easy to follow and document.
+This creates a pattern that’s easy to follow and document.
 
 -----
 
-## When Zimara Isnâ€™t Enough
+## When Zimara Isn’t Enough
 
 Zimara is a flashlight. Sometimes you need floodlights.
 
 ### You Need Actual SAST if:
 
 - Your codebase is complex (10,000+ lines of non-trivial logic)
-- Youâ€™re building a web app with authentication
+- You’re building a web app with authentication
 - Compliance requires it (PCI-DSS, SOC 2, etc.)
-- Youâ€™re handling sensitive data (PII, financial, health)
+- You’re handling sensitive data (PII, financial, health)
 
 **Tools to consider:**
 
 - Semgrep (open source, good for custom rules)
-- CodeQL (GitHubâ€™s offering, deep semantic analysis)
+- CodeQL (GitHub’s offering, deep semantic analysis)
 - Snyk Code (fast, developer-friendly)
 - SonarQube (comprehensive, enterprise-focused)
 
 ### You Need Secret Scanning if:
 
-- Youâ€™re a team of more than 5 developers
-- Youâ€™ve had secret leaks in the past
-- Youâ€™re handling production infrastructure
+- You’re a team of more than 5 developers
+- You’ve had secret leaks in the past
+- You’re handling production infrastructure
 
 **Tools to consider:**
 
@@ -1225,7 +1319,7 @@ Zimara is a flashlight. Sometimes you need floodlights.
 
 - You use more than a dozen dependencies
 - You deploy to production regularly
-- Youâ€™re running a service, not a static site
+- You’re running a service, not a static site
 
 **Tools to consider:**
 
@@ -1236,21 +1330,21 @@ Zimara is a flashlight. Sometimes you need floodlights.
 
 ### You Need Container Scanning if:
 
-- Youâ€™re deploying with Docker
+- You’re deploying with Docker
 - You use third-party base images
 - You care about OS-level vulnerabilities
 
 **Tools to consider:**
 
 - Trivy (fast, accurate, free)
-- Grype (Anchoreâ€™s offering, good for CI)
-- Docker Scout (Dockerâ€™s native solution)
+- Grype (Anchore’s offering, good for CI)
+- Docker Scout (Docker’s native solution)
 - Snyk Container (commercial but comprehensive)
 
 ### You Need Runtime Protection if:
 
 - Your application processes untrusted input
-- Youâ€™re exposed to the internet
+- You’re exposed to the internet
 - Downtime costs real money
 
 **Tools to consider:**
@@ -1285,13 +1379,13 @@ For a production service, a realistic security stack might be:
 - Log analysis (ELK, Splunk)
 - Incident response (PagerDuty)
 
-Zimara fits in the â€œlocalâ€ layer. Itâ€™s your first line of defense, not your only line.
+Zimara fits in the “local” layer. It’s your first line of defense, not your only line.
 
 ### When to Graduate Beyond Zimara
 
-Signs youâ€™ve outgrown what Zimara can do:
+Signs you’ve outgrown what Zimara can do:
 
-- Youâ€™re building an application, not a static site
+- You’re building an application, not a static site
 - Security findings require human analysis
 - Compliance audits need formal tooling documentation
 - You have a dedicated security team
@@ -1307,11 +1401,11 @@ At that point, Zimara becomes one tool in a larger toolbox. Keep using it for lo
 
 The best security tool is the one that actually runs.
 
-Zimara is simple on purpose. It doesnâ€™t require accounts, APIs, or approval from procurement. You can add it to a project in under a minute and it starts providing value immediately.
+Zimara is simple on purpose. It doesn’t require accounts, APIs, or approval from procurement. You can add it to a project in under a minute and it starts providing value immediately.
 
 The v0.48.0 snippet enhancements make findings easier to understand and fix. The `.zimaraignore` security hardening means you can exclude files without creating new attack surfaces.
 
-For many projects, thatâ€™s enough. For larger projects, itâ€™s a foundation.
+For many projects, that’s enough. For larger projects, it’s a foundation.
 
 Either way, run it early and run it often. Most security problems are boring mistakes that could have been caught with grep and a little paranoia.
 
@@ -1327,5 +1421,5 @@ See <CHECKS.md> for what each finding means and how to fix it.
 **Want the big picture?**  
 Head back to <README.md> for overview and philosophy.
 
-**Published by Oob Skuldenâ„¢**  
-The threats you donâ€™t see coming.
+**Published by Oob Skulden™**  
+The threats you don’t see coming.
